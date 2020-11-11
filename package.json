@@ -32,7 +32,8 @@
     "minimal",
     "observer",
     "observable",
-    "reaction"
+    "reaction",
+    "performance"
   ],
   "author": "Slava Birch <mail@betula.co>",
   "license": "MIT",
