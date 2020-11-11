@@ -3,14 +3,21 @@
   "version": "0.0.1",
   "description": "Minimal reactive box",
   "scripts": {
-    "publish": "npx lerna publish"
+    "bootstrap": "npm i",
+    "publish": "lerna publish",
+    "test": "jest",
+    "format": "prettier -w src/** tests/**"
   },
-  "main": "build/index.js",
-  "module": "build/index.esm.js",
-  "types": "build/index.d.ts",
+  "main": "src/main.js",
+  "types": "src/main.d.ts",
   "files": [
-    "build"
+    "src"
   ],
+  "devDependencies": {
+    "jest": "26.6.3",
+    "lerna": "3.22.1",
+    "prettier": "2.1.2"
+  },
   "sideEffects": false,
   "publishConfig": {
     "access": "public"

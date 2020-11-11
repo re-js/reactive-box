@@ -1,0 +1,8 @@
+{
+  "testMatch": [
+    "/**/*.test.js"
+  ],
+  "modulePathIgnorePatterns": [
+    "/node_modules/"
+  ]
+}
