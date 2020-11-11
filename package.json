@@ -1,0 +1,36 @@
+{
+  "name": "reactive",
+  "version": "0.0.0",
+  "description": "Minimal reactive box",
+  "scripts": {
+    "publish": "npx lerna publish"
+  },
+  "main": "build/index.js",
+  "module": "build/index.esm.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/betula/reactive.git"
+  },
+  "keywords": [
+    "reactive",
+    "box",
+    "minimal",
+    "observer",
+    "observable",
+    "reaction"
+  ],
+  "author": "Slava Birch <mail@betula.co>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/betula/reactive/issues"
+  },
+  "homepage": "https://github.com/betula/reactive#readme"
+}
