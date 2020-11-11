@@ -1,4 +1,3 @@
-
 let context_node;
 
 const read = (box_node) => {
@@ -9,7 +8,7 @@ const read = (box_node) => {
 };
 
 const write = (box_node) => {
-  box_node[0].forEach(rel => rel[0]());
+  box_node[0].forEach((rel) => rel[0]());
 };
 
 const box = (value, change_listener) => {
@@ -29,9 +28,10 @@ const box = (value, change_listener) => {
           }
         }
       : (next_value) => {
-          Object.is(value, next_value) || ((value = next_value), write(box_node));
-        }
-  ]
+          Object.is(value, next_value) ||
+            ((value = next_value), write(box_node));
+        },
+  ];
 };
 
 const sel = () => {};
@@ -46,7 +46,7 @@ const expr = (body, sync) => {
       let result;
       const stack = context_node;
 
-      deps.forEach(dep => dep[0].delete(expr_node));
+      deps.forEach((dep) => dep[0].delete(expr_node));
       context_node = expr_node;
 
       result = body.apply(this, arguments);
@@ -54,9 +54,8 @@ const expr = (body, sync) => {
       return result;
     },
     // stop
-    () => deps.forEach(dep => dep[0].delete(expr_node))
-  ]
-}
+    () => deps.forEach((dep) => dep[0].delete(expr_node)),
+  ];
+};
 
-module.exports = { box, sel, expr }
-
+module.exports = { box, sel, expr };

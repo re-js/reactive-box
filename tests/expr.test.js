@@ -2,7 +2,6 @@ const { box, sel, expr } = require("..");
 const { mut, runer } = require("./lib");
 
 describe("Expr", () => {
-
   test("(sync on each box change with one box) and (expr return value)", () => {
     const spy = jest.fn();
     const a = mut(1);
@@ -36,6 +35,4 @@ describe("Expr", () => {
     expect(spy).toHaveBeenCalledTimes(3);
     expect(spy).toHaveBeenNthCalledWith(3, 11, 21);
   });
-
 });
-
