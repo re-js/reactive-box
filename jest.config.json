@@ -4,5 +4,8 @@
   ],
   "modulePathIgnorePatterns": [
     "/node_modules/"
+  ],
+  "coveragePathIgnorePatterns": [
+    "/tests"
   ]
 }
