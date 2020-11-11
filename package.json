@@ -1,6 +1,6 @@
 {
   "name": "reactive-box",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Minimal reactive box",
   "scripts": {
     "publish": "npx lerna publish"
