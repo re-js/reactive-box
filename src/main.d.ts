@@ -3,9 +3,9 @@ export declare function box<T>(
   onChange?: (currentValue?: T, previousValue?: T) => void
 ): [() => T, (nextValue?: T) => void];
 
-export declare function sel<T>(body: () => T): [() => T, () => void];
+export declare function sel<R>(body: () => R): [() => R, () => void];
 
-export declare function expr<T>(
-  body: () => T,
+export declare function expr<F extends (...args: any[]) => any>(
+  body: F,
   updater?: () => void
-): [() => T, () => void];
+): [F, () => void];
