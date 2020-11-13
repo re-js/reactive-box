@@ -1,19 +1,26 @@
+/**
+ * 0: rels or (sync for expr)
+ * 1: deps
+ * 2: (valid for sel)
+ */
 let context_node;
 
-const read = (box_node) => {
+// node: box or sel node
+const read = (node) => {
   if (context_node) {
-    context_node[1].add(box_node);
-    box_node[0].add(context_node);
+    context_node[1].add(node);
+    node[0].add(context_node);
   }
 };
 
 const write = (box_node) => {
-  box_node[0].forEach((rel) => rel[0]());
+  box_node[0].forEach((rel) => {
+    rel.length === 3 ? (rel[2] = 0) : rel[0]();
+  });
 };
 
 const box = (value, change_listener) => {
-  const rels = new Set();
-  const box_node = [rels];
+  const box_node = [new Set()];
   return [
     // get
     () => (read(box_node), value),
@@ -34,19 +41,42 @@ const box = (value, change_listener) => {
   ];
 };
 
-const sel = () => {};
+// node: sel or expr node
+const free = (node, type) => (
+  node[type].forEach((target) => target[1-type].delete(node))
+)
 
-const expr = (body, sync) => {
-  sync = sync || body;
-  const deps = new Set();
-  const expr_node = [sync, deps];
+const sel = (body) => {
+  const sel_node = [new Set(), new Set(), 0];
+  let cache;
+  return [
+    () => {
+      read(sel_node);
+      if (!sel_node[2]) {
+        const stack = context_node;
+
+        free(sel_node, 1);
+        context_node = sel_node;
+
+        cache = body();
+        context_node = stack;
+        sel_node[2] = 1;
+      }
+      return cache;
+    },
+    () => (free(sel_node, 1), free(sel_node, 0)),
+  ]
+};
+
+const expr = (body, sync = body) => {
+  const expr_node = [sync, new Set()];
   return [
     // start
     function () {
       let result;
       const stack = context_node;
 
-      deps.forEach((dep) => dep[0].delete(expr_node));
+      free(expr_node, 1);
       context_node = expr_node;
 
       result = body.apply(this, arguments);
@@ -54,7 +84,7 @@ const expr = (body, sync) => {
       return result;
     },
     // stop
-    () => deps.forEach((dep) => dep[0].delete(expr_node)),
+    () => free(expr_node, 1),
   ];
 };
 

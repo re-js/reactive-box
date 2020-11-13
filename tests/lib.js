@@ -1,4 +1,4 @@
-const { box, expr } = require("..");
+const { box, expr, sel } = require("..");
 
 module.exports.mut = (value) => {
   const b = box(value);
@@ -11,3 +11,4 @@ module.exports.mut = (value) => {
 };
 
 module.exports.runer = (body, sync) => expr(body, sync)[0];
+module.exports.selec = (body) => sel(body)[0];
