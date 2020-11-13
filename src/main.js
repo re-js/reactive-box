@@ -42,9 +42,8 @@ const box = (value, change_listener) => {
 };
 
 // node: sel or expr node
-const free = (node, type) => (
-  node[type].forEach((target) => target[1-type].delete(node))
-)
+const free = (node, type) =>
+  node[type].forEach((target) => target[1 - type].delete(node));
 
 const sel = (body) => {
   const sel_node = [new Set(), new Set(), 0];
@@ -65,7 +64,7 @@ const sel = (body) => {
       return cache;
     },
     () => (free(sel_node, 1), free(sel_node, 0)),
-  ]
+  ];
 };
 
 const expr = (body, sync = body) => {
