@@ -1,5 +1,4 @@
-const { box, sel, expr } = require("..");
-const { mut, runer, selec } = require("./lib");
+const { mut, selec } = require("./lib");
 
 describe("Sel", () => {
   test("sel run only once on each box change with one box", () => {

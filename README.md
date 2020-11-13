@@ -5,15 +5,31 @@ Minimal reactive box
 ```javascript
 import { box, sel, expr } from 'reactive-box';
 
-const [getTodos] = box([]);
+const [getTodos, setTodos] = box(
+  JSON.parse(localStorage.getItem('todos') || '[]')
+);
 const [getCompleted] = sel(() =>
   getTodos().filter(todo => todo.completed)
 );
-const [sync] = expr(() => {
+const [save] = expr(() => {
   localStorage.setItem('todos', JSON.stringify(
     getTodos()
   ));
 });
-sync();
+save();
+
+setTodos([
+  { text: 'Idea', completed: true },
+  { text: 'Code', completed: true },
+  { text: 'Tests', completed: false },
+  { text: 'Docs', completed: false },
+]);
+console.log(getCompleted());
+console.log(localStorage.getItem('todos'));
 
 ```
+
+[![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/minimal-todos-on-reactive-box-tkj1n?expanddevtools=1&fontsize=14&hidenavigation=1&module=%2Fsrc%2Findex.js)
+
+[Try on RunKit](https://runkit.com/betula/5fae378c6cf6c5001b79c59c)
+

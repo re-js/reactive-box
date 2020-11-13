@@ -11,4 +11,14 @@ module.exports.mut = (value) => {
 };
 
 module.exports.runer = (body, sync) => expr(body, sync)[0];
+module.exports.run = (body, sync) => expr(body, sync)[0]();
+
 module.exports.selec = (body) => sel(body)[0];
+module.exports.comp = (body) => {
+  const s = sel(body);
+  const obj = {};
+  Object.defineProperty(obj, "val", {
+    get: s[0],
+  });
+  return obj;
+};

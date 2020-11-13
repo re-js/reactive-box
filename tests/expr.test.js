@@ -1,4 +1,3 @@
-const { box, sel, expr } = require("..");
 const { mut, runer } = require("./lib");
 
 describe("Expr", () => {
