@@ -29,7 +29,7 @@ console.log(localStorage.getItem('todos'));
 
 ```
 
-[![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/minimal-todos-on-reactive-box-tkj1n?expanddevtools=1&fontsize=14&hidenavigation=1&module=%2Fsrc%2Findex.js)
+[Try on CodeSandbox](https://codesandbox.io/s/minimal-todos-on-reactive-box-tkj1n?expanddevtools=1&fontsize=14&hidenavigation=1&module=%2Fsrc%2Findex.js)
 
 [Try on RunKit](https://runkit.com/betula/5fae378c6cf6c5001b79c59c)
 
