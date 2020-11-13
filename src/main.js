@@ -44,8 +44,13 @@ const write = (box_node) => {
         next_bound.clear();
 
         if (!active_bound.size) {
-          syncs.forEach((sync) => sync());
-          syncs.clear();
+          const iter = syncs.values();
+          let sync;
+          while (sync = iter.next().value) {
+            sync();
+            syncs.delete(sync);
+            if (active_bound.size) break;
+          }
         }
 
         if (!--limit) throw new Error("Infinity reactions loop");
