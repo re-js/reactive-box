@@ -11,7 +11,7 @@ let active_bound;
 const free = (node, type) => {
   node[type].forEach((target) => target[1 - type].delete(node));
   node[type].clear();
-}
+};
 
 // node: box or sel node
 const read = (node) => {
@@ -22,8 +22,7 @@ const read = (node) => {
 };
 
 const write = (box_node) => {
-  if (active_bound)
-    box_node[0].forEach((rel) => active_bound.add(rel));
+  if (active_bound) box_node[0].forEach((rel) => active_bound.add(rel));
   else {
     const syncs = new Set();
     let limit = 10000;
@@ -33,9 +32,9 @@ const write = (box_node) => {
     try {
       while (active_bound.size) {
         active_bound.forEach((node) => {
-          if (node.length === 2) syncs.add(node[0]) // expr
-          else { // sel
-            node[2] = 0; // invalidate
+          if (node.length === 2) syncs.add(node[0]);
+          else {
+            node[2] = 0; // sel invalidate
             node[0].forEach((next_node) => next_bound.add(next_node));
             free(node, 0);
           }
@@ -49,10 +48,9 @@ const write = (box_node) => {
           syncs.clear();
         }
 
-        if (!--limit) throw new Error('Infinity reactions loop');
+        if (!--limit) throw new Error("Infinity reactions loop");
       }
-    }
-    finally {
+    } finally {
       active_bound = 0;
     }
   }
@@ -115,10 +113,7 @@ const expr = (body, sync) => {
     }
     return result;
   }
-  return [
-    run,
-    () => free(expr_node, 1),
-  ];
+  return [run, () => free(expr_node, 1)];
 };
 
 module.exports = { box, sel, expr };
