@@ -5,7 +5,7 @@ declare function box<T>(
 
 declare function sel<T extends () => any>(body: T): [T, () => void];
 
-declare function expr<T extends () => any>(body: T): [T, () => void];
+declare function expr<T extends () => void>(body: T): [T, () => void];
 declare function expr<T extends (...args: any[]) => any>(
   body: T,
   updater: () => void
