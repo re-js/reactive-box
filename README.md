@@ -9,11 +9,11 @@ const [getTodos] = box([]);
 const [getCompleted] = sel(() =>
   getTodos().filter(todo => todo.completed)
 );
-const [run] = expr(() => {
+const [sync] = expr(() => {
   localStorage.setItem('todos', JSON.stringify(
     getTodos()
   ));
 });
-run();
+sync();
 
 ```
