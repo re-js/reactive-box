@@ -1,4 +1,4 @@
-const { mut, selec } = require("./lib");
+const { mut, selec, sel, run } = require("./lib");
 
 describe("Sel", () => {
   test("sel run only once on each box change with one box", () => {
@@ -19,4 +19,22 @@ describe("Sel", () => {
     expect(s()).toBe(2);
     expect(spy).toBeCalledTimes(2);
   });
+
+  test("sel should exclude from graph and invalidate after free", () => {
+    const spy = jest.fn();
+    const spy1 = jest.fn();
+    const a = mut(1);
+    const s = sel(() => (spy(), a.val));
+
+    run(() => spy1(s[0]()));
+    expect(spy).toBeCalledTimes(1);
+    expect(spy1).toBeCalledTimes(1);
+    s[1]();
+    s[0]();
+    expect(spy).toBeCalledTimes(2);
+
+    a.val = 2;
+    expect(spy1).toBeCalledTimes(1);
+  });
+
 });
