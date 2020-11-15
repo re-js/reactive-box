@@ -99,7 +99,11 @@ const sel = (body) => {
       }
       return cache;
     },
-    () => (free(sel_node, 1), free(sel_node, 0)),
+    () => {
+      free(sel_node, 1);
+      free(sel_node, 0);
+      sel_node[2] = cache = 0;
+    },
   ];
 };
 
