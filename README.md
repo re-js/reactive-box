@@ -3,33 +3,121 @@
 Minimal reactive box
 
 ```javascript
-import { box, sel, expr } from 'reactive-box';
+import React from "react";
+import { box, sel, expr } from "reactive-box";
 
-const [getTodos, setTodos] = box(
-  JSON.parse(localStorage.getItem('todos') || '[]')
+interface Todo {
+  text: string;
+  completed: boolean;
+}
+
+const [getTodos, setTodos] = box<Todo[]>([]);
+
+const [countActive] = sel(
+  () => getTodos().filter((todo) => !todo.completed).length
 );
-const [getCompleted] = sel(() =>
-  getTodos().filter(todo => todo.completed)
+
+const [countCompleted] = sel(
+  () => getTodos().filter((todo) => todo.completed).length
 );
-const [save] = expr(() => {
-  localStorage.setItem('todos', JSON.stringify(
-    getTodos()
-  ));
+
+const addTodo = (text: string) => {
+  setTodos([...getTodos(), { text, completed: false }]);
+};
+
+const switchTodo = (target: Todo) => {
+  setTodos(
+    getTodos().map((todo) =>
+      target === todo
+        ? {
+            ...todo,
+            completed: !todo.completed
+          }
+        : todo
+    )
+  );
+};
+
+const clearCompleted = () => {
+  setTodos(getTodos().filter((todo) => !todo.completed));
+};
+
+const observe = <T extends React.FC>(Component: T) =>
+  React.memo((props) => {
+    const update = React.useState(0)[1];
+    const ref = React.useRef<[T, () => void]>();
+    if (!ref.current) {
+      const [Observed, free] = expr(Component, () =>
+        update((v) => (v + 1) % 0xffff)
+      );
+      ref.current = [Observed, free];
+    }
+    React.useEffect(() => ref.current![1], []);
+    return ref.current[0](props);
+  });
+
+const TodoInput = observe(() => {
+  const [getText, changeHandler, clickHandler] = React.useMemo(() => {
+    const [getText, setText] = box("");
+    return [
+      getText,
+      (ev: React.ChangeEvent<HTMLInputElement>) => setText(ev.target.value),
+      () => {
+        addTodo(getText());
+        setText("");
+      }
+    ];
+  }, []);
+
+  return (
+    <div>
+      Todo: <input value={getText()} onChange={changeHandler} />
+      <button onClick={clickHandler}>+</button>
+    </div>
+  );
 });
-save();
 
-setTodos([
-  { text: 'Idea', completed: true },
-  { text: 'Code', completed: true },
-  { text: 'Tests', completed: false },
-  { text: 'Docs', completed: false },
-]);
-console.log(getCompleted());
-console.log(localStorage.getItem('todos'));
+const TodoList = observe(() => (
+  <ul>
+    {getTodos().map((todo, key) => (
+      <li key={key}>
+        {todo.text}{" "}
+        <button onClick={() => switchTodo(todo)}>
+          {todo.completed ? "open" : "close"}
+        </button>
+      </li>
+    ))}
+  </ul>
+));
 
+const TodoFooter = observe(() => {
+  const active = countActive();
+  const completed = countCompleted();
+  return (
+    <div>
+      {active ? `${active} left ` : null}
+      {completed ? (
+        <button onClick={clearCompleted}>clear completed</button>
+      ) : null}
+    </div>
+  );
+});
+
+export default function App() {
+  return (
+    <>
+      <TodoInput />
+      <TodoList />
+      <TodoFooter />
+    </>
+  );
+}
 ```
 
-[Try on CodeSandbox](https://codesandbox.io/s/minimal-todos-on-reactive-box-tkj1n?expanddevtools=1&fontsize=14&hidenavigation=1&module=%2Fsrc%2Findex.js)
+[![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/reactive-box-todos-esq2m?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 
-[Try on RunKit](https://runkit.com/betula/5fae378c6cf6c5001b79c59c)
+```bash
+npm i reactive-box
+```
 
+Enjoy!
