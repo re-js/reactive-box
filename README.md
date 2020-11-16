@@ -1,120 +1,57 @@
 [![npm version](https://img.shields.io/npm/v/reactive-box?style=flat-square)](https://www.npmjs.com/package/reactive-box) [![bundle size](https://img.shields.io/bundlephobia/minzip/reactive-box?style=flat-square)](https://bundlephobia.com/result?p=reactive-box) [![code coverage](https://img.shields.io/coveralls/github/betula/reactive-box?style=flat-square)](https://coveralls.io/github/betula/reactive-box) [![typescript supported](https://img.shields.io/npm/types/typescript?style=flat-square)](./src/main.d.ts)
 
-Minimal reactive box
+Minimalistic, [fast](https://github.com/betula/reactive-box-performance), and highly efficient reactivity.
 
 ```javascript
 import React from "react";
 import { box, sel, expr } from "reactive-box";
 
-interface Todo {
-  text: string;
-  completed: boolean;
-}
+const [getCounter, setCounter] = box(0);
+const [getNext] = sel(() => getCounter() + 1);
 
-const [getTodos, setTodos] = box<Todo[]>([]);
+const increment = () => setCounter(getCounter() + 1);
+const decrement = () => setCounter(getCounter() - 1);
 
-const [countActive] = sel(
-  () => getTodos().filter((todo) => !todo.completed).length
-);
-
-const [countCompleted] = sel(
-  () => getTodos().filter((todo) => todo.completed).length
-);
-
-const addTodo = (text: string) => {
-  setTodos([...getTodos(), { text, completed: false }]);
-};
-
-const switchTodo = (target: Todo) => {
-  setTodos(
-    getTodos().map((todo) =>
-      target === todo
-        ? {
-            ...todo,
-            completed: !todo.completed
-          }
-        : todo
-    )
-  );
-};
-
-const clearCompleted = () => {
-  setTodos(getTodos().filter((todo) => !todo.completed));
+const useForceUpdate = () => {
+  return React.useReducer(() => [], [])[1];
 };
 
 const observe = <T extends React.FC>(Component: T) =>
   React.memo((props) => {
-    const update = React.useState(0)[1];
+    const forceUpdate = useForceUpdate();
     const ref = React.useRef<[T, () => void]>();
-    if (!ref.current) {
-      const [Observed, free] = expr(Component, () =>
-        update((v) => (v + 1) % 0xffff)
-      );
-      ref.current = [Observed, free];
-    }
     React.useEffect(() => ref.current![1], []);
+    if (!ref.current) {
+      ref.current = expr(Component, forceUpdate);
+    }
     return ref.current[0](props);
   });
 
-const TodoInput = observe(() => {
-  const [getText, changeHandler, clickHandler] = React.useMemo(() => {
-    const [getText, setText] = box("");
-    return [
-      getText,
-      (ev: React.ChangeEvent<HTMLInputElement>) => setText(ev.target.value),
-      () => {
-        addTodo(getText());
-        setText("");
-      }
-    ];
-  }, []);
-
-  return (
-    <div>
-      Todo: <input value={getText()} onChange={changeHandler} />
-      <button onClick={clickHandler}>+</button>
-    </div>
-  );
-});
-
-const TodoList = observe(() => (
-  <ul>
-    {getTodos().map((todo, key) => (
-      <li key={key}>
-        {todo.text}{" "}
-        <button onClick={() => switchTodo(todo)}>
-          {todo.completed ? "open" : "close"}
-        </button>
-      </li>
-    ))}
-  </ul>
+const Counter = observe(() => (
+  <p>
+    Counter: {getCounter()} (next value: {getNext()})
+  </p>
 ));
 
-const TodoFooter = observe(() => {
-  const active = countActive();
-  const completed = countCompleted();
-  return (
-    <div>
-      {active ? `${active} left ` : null}
-      {completed ? (
-        <button onClick={clearCompleted}>clear completed</button>
-      ) : null}
-    </div>
-  );
-});
+const Buttons = () => (
+  <p>
+    <button onClick={decrement}>Prev</button>
+    <button onClick={increment}>Next</button>
+  </p>
+);
 
-export default function App() {
-  return (
-    <>
-      <TodoInput />
-      <TodoList />
-      <TodoFooter />
-    </>
-  );
-}
+export const App = () => (
+  <>
+    <Counter />
+    <Buttons />
+  </>
+);
+
 ```
 
-[![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/reactive-box-todos-esq2m?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
+[![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/reactive-box-counter-35bp9?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
+
+Install
 
 ```bash
 npm i reactive-box

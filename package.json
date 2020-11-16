@@ -1,7 +1,7 @@
 {
   "name": "reactive-box",
   "version": "0.1.2",
-  "description": "Minimal reactive box",
+  "description": "Minimalistic, fast, and highly efficient reactivity",
   "scripts": {
     "bootstrap": "npm i",
     "publish": "lerna publish",
@@ -27,9 +27,12 @@
     "url": "git+ssh://git@github.com/betula/reactive-box.git"
   },
   "keywords": [
+    "reactivity",
     "reactive",
     "box",
     "minimal",
+    "minimalistic",
+    "lightweight",
     "observer",
     "observable",
     "reaction",
