@@ -113,7 +113,7 @@ const expr = (body, sync) => {
     let result;
     const stack = context_node;
 
-    expr_node[1].size || free(expr_node, 1);
+    expr_node[1].size && free(expr_node, 1);
     context_node = expr_node;
     try {
       result = body.apply(this, arguments);
