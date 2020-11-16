@@ -1,8 +1,8 @@
 const { box, expr, sel } = require("..");
 
 module.exports.box = box;
-module.exports.mut = (value) => {
-  const b = box(value);
+module.exports.mut = (value, listener) => {
+  const b = box(value, listener);
   const obj = {};
   Object.defineProperty(obj, "val", {
     get: b[0],
