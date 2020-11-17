@@ -28,10 +28,10 @@ const observe = <T extends React.FC>(Component: T) =>
   React.memo((props) => {
     const forceUpdate = useForceUpdate();
     const ref = React.useRef<[T, () => void]>();
-    React.useEffect(() => ref.current![1], []);
     if (!ref.current) {
       ref.current = expr(Component, forceUpdate);
     }
+    React.useEffect(() => ref.current![1], []);
     return ref.current[0](props);
   });
 
