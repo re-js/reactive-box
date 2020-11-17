@@ -2,6 +2,14 @@
 
 Minimalistic, [fast](https://github.com/betula/reactive-box-performance), and highly efficient reactivity.
 
+API of library implemented by only thee functions:
+
+`box` - is the container for an immutable value.
+`sel` - is the cached selector (or computed value in another terminology) who will mark for recalculating on the next call If some of read inside boxes or selectors changed.
+`expr` - is the expression who detects all boxes and selectors read inside and reacted If some of them changed.
+
+Example with React:
+
 ```javascript
 import React from "react";
 import { box, sel, expr } from "reactive-box";
