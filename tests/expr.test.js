@@ -40,7 +40,7 @@ describe("Expr", () => {
     let f = 1;
     const a = mut(1);
     const b = mut(1);
-    const r = runer(() => f ? a.val : b.val, spy);
+    const r = runer(() => (f ? a.val : b.val), spy);
     r();
     f = 0;
     r();

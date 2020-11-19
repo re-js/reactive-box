@@ -46,7 +46,7 @@ const write = (box_node) => {
         if (!active_bound.size) {
           const iter = syncs.values();
           let sync;
-          while (sync = iter.next().value) {
+          while ((sync = iter.next().value)) {
             sync();
             syncs.delete(sync);
             if (active_bound.size) break;

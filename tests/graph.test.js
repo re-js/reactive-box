@@ -44,5 +44,4 @@ describe("Graph", () => {
     expect(spy).toHaveBeenCalledTimes(3);
     expect(spy).toHaveBeenNthCalledWith(3, 3);
   });
-
 });

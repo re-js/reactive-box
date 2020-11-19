@@ -19,5 +19,4 @@ describe("Box", () => {
     expect(spy1).toHaveBeenNthCalledWith(2, 1);
     expect(spy1).toHaveBeenNthCalledWith(3, 5);
   });
-
 });
