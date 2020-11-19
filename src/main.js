@@ -85,13 +85,13 @@ const sel = (body) => {
   const sel_node = [new Set(), new Set(), 0];
   let cache;
   return [
-    () => {
+    function () {
       read(sel_node);
       if (!sel_node[2]) {
         const stack = context_node;
         context_node = sel_node;
         try {
-          cache = body();
+          cache = body.call(this);
         } finally {
           context_node = stack;
         }

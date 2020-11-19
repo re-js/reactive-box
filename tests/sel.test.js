@@ -37,4 +37,14 @@ describe("Sel", () => {
     expect(spy1).toBeCalledTimes(1);
   });
 
+  test("sel should pass this context", () => {
+    const spy = jest.fn();
+    const s = sel(function() {
+      spy(this);
+    })[0];
+    const m = {};
+    s.call(m);
+    expect(spy).toBeCalledWith(m);
+  });
+
 });
