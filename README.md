@@ -24,8 +24,8 @@ const useForceUpdate = () => {
   return React.useReducer(() => [], [])[1];
 };
 
-const observe = <T extends React.FC>(Component: T) =>
-  React.memo((props) => {
+const observe = <T extends React.FC<P>, P>(Component: T) =>
+  React.memo((props: P) => {
     const forceUpdate = useForceUpdate();
     const ref = React.useRef<[T, () => void]>();
     if (!ref.current) {
