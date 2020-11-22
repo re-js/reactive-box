@@ -1,6 +1,20 @@
 const { mut, run } = require("./lib");
 
 describe("Box", () => {
+  test("should work box", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    run(() => spy(a.val));
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenLastCalledWith(0);
+    a.val = 1;
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenLastCalledWith(1);
+    a.val = 1;
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
+
   test("should work box change listener", () => {
     const spy = jest.fn();
     const spy1 = jest.fn();
