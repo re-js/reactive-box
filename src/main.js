@@ -152,7 +152,7 @@ const expr = (body, sync) => {
     () => {
       free(expr_node, 1);
       last_context = null;
-    }
+    },
   ];
 };
 

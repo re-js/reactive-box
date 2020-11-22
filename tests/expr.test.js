@@ -64,7 +64,7 @@ describe("Expr", () => {
   test("get run context from prev run call", () => {
     const spy = jest.fn();
     const a = mut(0);
-    const e = runer(function() {
+    const e = runer(function () {
       spy(this, a.val);
     });
     e.call(["a"]);
@@ -76,5 +76,4 @@ describe("Expr", () => {
     a.val = 0;
     expect(spy).toHaveBeenLastCalledWith(["b"], 0);
   });
-
 });

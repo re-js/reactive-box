@@ -64,10 +64,10 @@ describe("Sel", () => {
   test("should save context for sel recalc from prev call", () => {
     const spy = jest.fn();
     const a = mut(0);
-    const s = selec(function() {
+    const s = selec(function () {
       spy(this, a.val);
-    })
-    const e = runer(function() {
+    });
+    const e = runer(function () {
       s.call(this);
     });
     e.call(["a"]);
