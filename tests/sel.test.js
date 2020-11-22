@@ -1,4 +1,4 @@
-const { mut, selec, sel, run } = require("./lib");
+const { mut, selec, sel, run, runer } = require("./lib");
 
 describe("Sel", () => {
   test("sel run only once on each box change with one box", () => {
@@ -59,5 +59,23 @@ describe("Sel", () => {
     a.val = "ba";
     expect(spy).toBeCalledTimes(2);
     expect(spy).toHaveBeenLastCalledWith("b");
+  });
+
+  test("should save context for sel recalc from prev call", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const s = selec(function() {
+      spy(this, a.val);
+    })
+    const e = runer(function() {
+      s.call(this);
+    });
+    e.call(["a"]);
+    expect(spy).toHaveBeenLastCalledWith(["a"], 0);
+    a.val = 1;
+    expect(spy).toHaveBeenLastCalledWith(["a"], 1);
+    e.call(["b"]);
+    a.val = 2;
+    expect(spy).toHaveBeenLastCalledWith(["b"], 2);
   });
 });

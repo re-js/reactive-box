@@ -108,11 +108,12 @@ const sel = (body) => {
   return [
     function () {
       read(sel_node);
+      last_context = this;
       if (!sel_node[2]) {
         const stack = context_node;
         context_node = sel_node;
         try {
-          cache = body.call((last_context = this));
+          cache = body.call(last_context);
         } finally {
           context_node = stack;
         }
