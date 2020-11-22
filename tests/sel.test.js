@@ -39,11 +39,10 @@ describe("Sel", () => {
 
   test("sel should pass this context", () => {
     const spy = jest.fn();
-    const s = sel(function () {
+    const s = selec(function () {
       spy(this);
-    })[0];
-    const m = {};
-    s.call(m);
-    expect(spy).toBeCalledWith(m);
+    });
+    s.call(["a"]);
+    expect(spy).toBeCalledWith(["a"]);
   });
 });

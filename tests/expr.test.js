@@ -1,4 +1,4 @@
-const { mut, runer, expr } = require("./lib");
+const { box, mut, runer, expr } = require("./lib");
 
 describe("Expr", () => {
   test("(sync on each box change with one box) and (expr return value)", () => {
@@ -50,7 +50,6 @@ describe("Expr", () => {
 
   test("exclude from graph on free call", () => {
     const spy = jest.fn();
-    let f = 1;
     const a = mut(1);
     const e = expr(() => a.val, spy);
     e[0]();
@@ -61,4 +60,21 @@ describe("Expr", () => {
     a.val = 1;
     expect(spy).toBeCalledTimes(1);
   });
+
+  test("get run context from prev run call", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const e = runer(function() {
+      spy(this, a.val);
+    });
+    e.call(["a"]);
+    expect(spy).toHaveBeenLastCalledWith(["a"], 0);
+    a.val = 1;
+    expect(spy).toHaveBeenLastCalledWith(["a"], 1);
+    e.call(["b"]);
+    expect(spy).toHaveBeenLastCalledWith(["b"], 1);
+    a.val = 0;
+    expect(spy).toHaveBeenLastCalledWith(["b"], 0);
+  });
+
 });

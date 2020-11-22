@@ -75,8 +75,10 @@ const box = (value, change_listener) => {
           }
         }
       : (next_value) => {
-          Object.is(value, next_value) ||
-            ((value = next_value), write(box_node));
+          if (!Object.is(value, next_value)) {
+            value = next_value;
+            write(box_node);
+          }
         },
   ];
 };
@@ -108,7 +110,9 @@ const sel = (body) => {
 };
 
 const expr = (body, sync) => {
-  const expr_node = [sync || run, new Set()];
+  let last_context;
+  if (!sync) sync = () => run.call(last_context);
+  const expr_node = [sync, new Set()];
   function run() {
     let result;
     const stack = context_node;
@@ -116,7 +120,7 @@ const expr = (body, sync) => {
     expr_node[1].size && free(expr_node, 1);
     context_node = expr_node;
     try {
-      result = body.apply(this, arguments);
+      result = body.apply((last_context = this), arguments);
     } finally {
       context_node = stack;
     }
