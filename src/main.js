@@ -2,6 +2,7 @@
  * 0: rels or (sync for expr)
  * 1: deps
  * 2: (valid for sel)
+ * 3: (recalc for sel)
  */
 let context_node;
 let active_bound;
@@ -24,31 +25,37 @@ const read = (node) => {
 const write = (box_node) => {
   if (active_bound) box_node[0].forEach((rel) => active_bound.add(rel));
   else {
-    const syncs = new Set();
+    const exprs = new Set();
+    const sels = new Set();
     let limit = 10000;
-    let next_bound = new Set();
 
     active_bound = new Set(box_node[0]);
     try {
       while (active_bound.size) {
         active_bound.forEach((node) => {
-          if (node.length === 2) syncs.add(node[0]);
+          if (node.length === 2) exprs.add(node);
           else {
-            node[2] = 0; // sel invalidate
-            node[0].forEach((next_node) => next_bound.add(next_node));
-            free(node, 0);
+            if (node[0].size) sels.add(node);
+            else node[2] = 0;
           }
           free(node, 1);
         });
-        [active_bound, next_bound] = [next_bound, active_bound];
-        next_bound.clear();
+        active_bound.clear();
+
+        sels.forEach((sel_node) => {
+          if (sel_node[3]()) {
+            sel_node[0].forEach((rel) => active_bound.add(rel));
+            free(sel_node, 0);
+          }
+        });
+        sels.clear();
 
         if (!active_bound.size) {
-          const iter = syncs.values();
-          let sync;
-          while ((sync = iter.next().value)) {
-            sync();
-            syncs.delete(sync);
+          const iter = exprs.values();
+          let expr_node;
+          while ((expr_node = iter.next().value)) {
+            expr_node[0]();
+            exprs.delete(expr_node);
             if (active_bound.size) break;
           }
         }
@@ -84,8 +91,20 @@ const box = (value, change_listener) => {
 };
 
 const sel = (body) => {
-  const sel_node = [new Set(), new Set(), 0];
   let cache;
+  let last_context;
+  const recalc = () => {
+    let prev = cache;
+    const stack = context_node;
+    context_node = sel_node;
+    try {
+      cache = body.call(last_context);
+    } finally {
+      context_node = stack;
+    }
+    return !Object.is(prev, cache);
+  };
+  const sel_node = [new Set(), new Set(), 0, recalc];
   return [
     function () {
       read(sel_node);
@@ -93,7 +112,7 @@ const sel = (body) => {
         const stack = context_node;
         context_node = sel_node;
         try {
-          cache = body.call(this);
+          cache = body.call((last_context = this));
         } finally {
           context_node = stack;
         }
@@ -105,6 +124,7 @@ const sel = (body) => {
       free(sel_node, 1);
       free(sel_node, 0);
       sel_node[2] = cache = 0;
+      last_context = null;
     },
   ];
 };
@@ -126,7 +146,13 @@ const expr = (body, sync) => {
     }
     return result;
   }
-  return [run, () => free(expr_node, 1)];
+  return [
+    run,
+    () => {
+      free(expr_node, 1);
+      last_context = null;
+    }
+  ];
 };
 
 module.exports = { box, sel, expr };

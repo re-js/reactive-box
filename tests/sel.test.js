@@ -45,4 +45,19 @@ describe("Sel", () => {
     s.call(["a"]);
     expect(spy).toBeCalledWith(["a"]);
   });
+
+  test("sel should propogate change only if return value changed", () => {
+    const spy = jest.fn();
+    const a = mut("a");
+    const s = selec(() => a.val[0]);
+    run(() => spy(s()));
+
+    expect(spy).toBeCalledTimes(1);
+    expect(spy).toBeCalledWith("a");
+    a.val += "b";
+    expect(spy).toBeCalledTimes(1);
+    a.val = "ba";
+    expect(spy).toBeCalledTimes(2);
+    expect(spy).toHaveBeenLastCalledWith("b");
+  });
 });
