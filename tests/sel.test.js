@@ -20,6 +20,17 @@ describe("Sel", () => {
     expect(spy).toBeCalledTimes(2);
   });
 
+  test("should work custom comparer", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const s = selec(() => (a.val, NaN), (val, prev) => val === prev);
+    run(() => spy(s()));
+
+    expect(spy).toBeCalledTimes(1);
+    a.val = 1;
+    expect(spy).toBeCalledTimes(2);
+  });
+
   test("sel should exclude from graph and invalidate after free", () => {
     const spy = jest.fn();
     const spy1 = jest.fn();

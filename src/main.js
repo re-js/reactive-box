@@ -68,13 +68,13 @@ const write = (box_node) => {
   }
 };
 
-const box = (value, change_listener) => {
+const box = (value, change_listener, comparer = Object.is) => {
   const box_node = [new Set()];
   return [
     () => (read(box_node), value),
     change_listener
       ? (next_value) => {
-          if (!Object.is(value, next_value)) {
+          if (!comparer(value, next_value)) {
             const prev_value = value;
             value = next_value;
             write(box_node);
@@ -82,7 +82,7 @@ const box = (value, change_listener) => {
           }
         }
       : (next_value) => {
-          if (!Object.is(value, next_value)) {
+          if (!comparer(value, next_value)) {
             value = next_value;
             write(box_node);
           }
@@ -90,7 +90,7 @@ const box = (value, change_listener) => {
   ];
 };
 
-const sel = (body) => {
+const sel = (body, comparer = Object.is) => {
   let cache;
   let last_context;
   const recalc = () => {
@@ -102,7 +102,7 @@ const sel = (body) => {
     } finally {
       context_node = stack;
     }
-    return !Object.is(prev, cache);
+    return !comparer(cache, prev);
   };
   const sel_node = [new Set(), new Set(), 0, recalc];
   return [

@@ -1,8 +1,8 @@
 const { box, expr, sel } = require("..");
 
 module.exports.box = box;
-module.exports.mut = (value, listener) => {
-  const b = box(value, listener);
+module.exports.mut = (value, listener, comparer) => {
+  const b = box(value, listener, comparer);
   const obj = {};
   Object.defineProperty(obj, "val", {
     get: b[0],
@@ -16,9 +16,9 @@ module.exports.runer = (body, sync) => expr(body, sync)[0];
 module.exports.run = (body, sync) => expr(body, sync)[0]();
 
 module.exports.sel = sel;
-module.exports.selec = (body) => sel(body)[0];
-module.exports.comp = (body) => {
-  const s = sel(body);
+module.exports.selec = (body, comparer) => sel(body, comparer)[0];
+module.exports.comp = (body, comparer) => {
+  const s = sel(body, comparer);
   const obj = {};
   Object.defineProperty(obj, "val", {
     get: s[0],

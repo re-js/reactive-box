@@ -15,6 +15,16 @@ describe("Box", () => {
     expect(spy).toHaveBeenCalledTimes(2);
   });
 
+  test("should work custom comparer", () => {
+    const spy = jest.fn();
+    const a = mut(NaN, null, (val, next) => val === next);
+    run(() => spy(a.val));
+
+    expect(spy).toBeCalledTimes(1);
+    a.val = NaN;
+    expect(spy).toBeCalledTimes(2);
+  });
+
   test("should work box change listener", () => {
     const spy = jest.fn();
     const spy1 = jest.fn();
