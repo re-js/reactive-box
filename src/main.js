@@ -93,8 +93,7 @@ const box = (value, change_listener, comparer = Object.is) => {
 const sel = (body, comparer = Object.is) => {
   let cache;
   let last_context;
-  const recalc = () => {
-    let prev = cache;
+  const run = () => {
     const stack = context_node;
     context_node = sel_node;
     try {
@@ -102,21 +101,18 @@ const sel = (body, comparer = Object.is) => {
     } finally {
       context_node = stack;
     }
+  }
+  const sel_node = [new Set(), new Set(), 0, () => {
+    let prev = cache;
+    run();
     return !comparer(cache, prev);
-  };
-  const sel_node = [new Set(), new Set(), 0, recalc];
+  }];
   return [
     function () {
       read(sel_node);
       last_context = this;
       if (!sel_node[2]) {
-        const stack = context_node;
-        context_node = sel_node;
-        try {
-          cache = body.call(last_context);
-        } finally {
-          context_node = stack;
-        }
+        run();
         sel_node[2] = 1;
       }
       return cache;
