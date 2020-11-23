@@ -3,10 +3,10 @@
   "version": "0.2.1",
   "description": "Minimalistic, fast, and highly efficient reactivity",
   "scripts": {
-    "bootstrap": "npm i",
     "publish": "lerna publish",
     "test": "jest",
-    "format": "prettier -w src/** tests/**"
+    "format": "prettier -w src/** tests/**",
+    "test:perf:tree": "node ./tests/perf/tree.js"
   },
   "main": "src/main.js",
   "types": "src/main.d.ts",
@@ -16,7 +16,8 @@
   "devDependencies": {
     "jest": "26.6.3",
     "lerna": "3.22.1",
-    "prettier": "2.1.2"
+    "prettier": "2.2.0",
+    "simple-statistics": "7.3.2"
   },
   "sideEffects": false,
   "publishConfig": {
