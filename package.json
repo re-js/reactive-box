@@ -3,6 +3,7 @@
   "version": "0.2.2",
   "description": "Minimalistic, fast, and highly efficient reactivity",
   "scripts": {
+    "bootstrap": "npm i",
     "publish": "lerna publish",
     "test": "jest",
     "format": "prettier -w src/** tests/**",
