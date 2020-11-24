@@ -1,6 +1,6 @@
 {
   "name": "reactive-box",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Minimalistic, fast, and highly efficient reactivity",
   "scripts": {
     "bootstrap": "npm i",
