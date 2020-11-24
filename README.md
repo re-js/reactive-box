@@ -2,8 +2,6 @@
 
 Minimalistic, [fast](https://github.com/betula/reactive-box-performance), and highly efficient reactivity.
 
-It is minimal core for a big family of state managers' syntax. You can use the different syntax of your data flow on one big project, but the single core of your reactions provides the possibility for easy synchronization between them.
-
 API of library implemented by only thee functions:
 
 + `box` - is the container for an immutable value.
@@ -61,7 +59,9 @@ export const App = () => (
 
 [![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/reactive-box-counter-35bp9?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 
-More examples
+It is minimal core for a big family of state managers' syntax. You can use the different syntax of your data flow on one big project, but the single core of your reactions provides the possibility for easy synchronization between them.
+
+Examples of state managers' syntax:
 
 - [Simple store and actions and only hooks with React on CodeSandbox](https://codesandbox.io/s/reactive-box-store-nku88?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 - [Simple model with React on CodeSandbox](https://codesandbox.io/s/reactive-box-model-yopk5?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
