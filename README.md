@@ -2,7 +2,13 @@
 
 Minimalistic, [fast](https://github.com/betula/reactive-box-performance), and highly efficient reactivity.
 
-API of library implemented by only thee functions:
+Hi friends! Today I will tell you how I came to this.
+
+Redux has so many different functions, Mobx has mutable objects by default, Angular so heavy, Vue so strange, and other them so young :sweat_smile:
+
+These funny thoughts served as fuel for writing the reaction core. So that everyone can make their own syntax for managing the state of the application in 100-150 lines.
+
+It only three functions:
 
 + `box` - is the container for an immutable value.
 + `sel` - is the cached selector (or computed value in another terminology) who will mark for recalculating If some of read inside boxes or selectors changed.
