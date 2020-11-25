@@ -14,7 +14,27 @@ It only three functions:
 + `sel` - is the cached selector (or computed value in another terminology) who will mark for recalculating If some of read inside boxes or selectors changed.
 + `expr` - is the expression who detects all boxes and selectors read inside and reacted If some of them changed.
 
-Example with React:
+Simple counter example:
+
+```javascript
+import { box, sel, expr } from "reactive-box";
+
+const [getCounter, setCounter] = box(0);
+const [getNext] = sel(() => getCounter() + 1);
+
+const increment = () => setCounter(getCounter() + 1);
+
+const [run] = expr(() => {
+  console.log(`Counter: ${getCounter()} (next value: ${getNext()})`)
+});
+
+run();
+increment();
+```
+
+[Try It on RunKit](https://runkit.com/betula/5fbde8473dd2b0001bb8f9be)
+
+That counter with React:
 
 ```javascript
 import React from "react";
