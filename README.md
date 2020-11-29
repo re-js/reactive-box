@@ -26,7 +26,7 @@ run();
 set(get() + 1);
 ```
 
-[Try on RunKit!](https://runkit.com/betula/5fbf60565572d7001a76cd29)
+[Try It on RunKit!](https://runkit.com/betula/5fbf60565572d7001a76cd29)
 
 Basic examples:
 
