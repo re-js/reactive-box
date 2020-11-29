@@ -20,7 +20,7 @@ import { box, sel, expr } import "reactive-box";
 const [get, set] = box(0);
 const [next] = sel(() => get() + 1);
 const [run, stop] = expr(() => {
-	console.log(`Counter: ${get()} (next value: ${next()})`)
+  console.log(`Counter: ${get()} (next value: ${next()})`)
 });
 run();
 set(get() + 1);
