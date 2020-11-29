@@ -41,6 +41,10 @@ Examples of state managers' syntax:
 - [Simple model with React on CodeSandbox](https://codesandbox.io/s/reactive-box-model-yopk5?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 - [Mobx like todo-mvc with React on CodeSandbox](https://codesandbox.io/s/reactive-box-todos-u5q3e?hidenavigation=1&module=%2Fsrc%2Fshared%2Ftodos.ts)
 
+Articles
+
+- [664 Bytes reactivity on dev.to](https://dev.to/betula/reactive-box-1hm5)
+
 You can make your own state manager system or another observable and reactive data flow. It so fun!
 
 Install
