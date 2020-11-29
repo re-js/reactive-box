@@ -6,7 +6,7 @@ Hi friends! Today I will tell you how I came to this.
 
 Redux has so many different functions, Mobx has mutable objects by default, Angular so heavy, Vue so strange, and other them so young :sweat_smile:
 
-These funny thoughts served as fuel for writing the reaction core. So that everyone can make their own syntax for managing the state of the application in 100-150 lines :+1:
+These funny thoughts served as fuel for writing the minimal reaction core. So that everyone can make their own syntax for managing the state of the application in 100-150 lines :+1:
 
 It only three functions:
 
