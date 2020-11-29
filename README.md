@@ -6,7 +6,7 @@ Hi friends! Today I will tell you how I came to this.
 
 Redux has so many different functions, Mobx has mutable objects by default, Angular so heavy, Vue so strange, and other them so young :sweat_smile:
 
-These funny thoughts served as fuel for writing the reaction core. So that everyone can make their own syntax for managing the state of the application in 100-150 lines.
+These funny thoughts served as fuel for writing the reaction core. So that everyone can make their own syntax for managing the state of the application in 100-150 lines :+1:
 
 It only three functions:
 
@@ -14,58 +14,24 @@ It only three functions:
 + `sel` - is the cached selector (or computed value in another terminology) who will mark for recalculating If some of read inside boxes or selectors changed.
 + `expr` - is the expression who detects all boxes and selectors read inside and reacted If some of them changed.
 
-[Counter with Node.js on RunKit](https://runkit.com/betula/5fbde8473dd2b0001bb8f9be)
-
-That counter with React:
-
 ```javascript
-import React from "react";
-import { box, sel, expr } from "reactive-box";
+import { box, sel, expr } import "reactive-box";
 
-const [getCounter, setCounter] = box(0);
-const [getNext] = sel(() => getCounter() + 1);
-
-const increment = () => setCounter(getCounter() + 1);
-const decrement = () => setCounter(getCounter() - 1);
-
-const useForceUpdate = () => {
-  return React.useReducer(() => [], [])[1];
-};
-
-const observe = <T extends React.FC<P>, P>(Component: T) =>
-  React.memo((props: P) => {
-    const forceUpdate = useForceUpdate();
-    const ref = React.useRef<[T, () => void]>();
-    if (!ref.current) {
-      ref.current = expr(Component, forceUpdate);
-    }
-    React.useEffect(() => ref.current![1], []);
-    return ref.current[0](props);
-  });
-
-const Counter = observe(() => (
-  <p>
-    Counter: {getCounter()} (next value: {getNext()})
-  </p>
-));
-
-const Buttons = () => (
-  <p>
-    <button onClick={decrement}>Prev</button>
-    <button onClick={increment}>Next</button>
-  </p>
-);
-
-export const App = () => (
-  <>
-    <Counter />
-    <Buttons />
-  </>
-);
-
+const [get, set] = box(0);
+const [next] = sel(() => get() + 1);
+const [run, stop] = expr(() => {
+	console.log(`Counter: ${get()} (next value: ${next()})`)
+});
+run();
+set(get() + 1);
 ```
 
-[![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/reactive-box-counter-35bp9?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
+[Try on RunKit!](https://runkit.com/betula/5fbf60565572d7001a76cd29)
+
+Basic examples:
+
+- [Counter with Node.js on RunKit](https://runkit.com/betula/5fbde8473dd2b0001bb8f9be)
+- [Counter with React on CodeSandbox](https://codesandbox.io/s/reactive-box-counter-35bp9?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 
 It is minimal core for a big family of state managers' syntax. You can use the different syntax of your data flow on one big project, but the single core of your reactions provides the possibility for easy synchronization between them.
 
@@ -75,10 +41,12 @@ Examples of state managers' syntax:
 - [Simple model with React on CodeSandbox](https://codesandbox.io/s/reactive-box-model-yopk5?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 - [Mobx like todo-mvc with React on CodeSandbox](https://codesandbox.io/s/reactive-box-todos-u5q3e?hidenavigation=1&module=%2Fsrc%2Fshared%2Ftodos.ts)
 
+You can make your own state manager system or another observable and reactive data flow. It so fun!
+
 Install
 
 ```bash
 npm i reactive-box
 ```
 
-Enjoy!
+Cheers and happy coding! 👋
