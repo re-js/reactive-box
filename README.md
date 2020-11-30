@@ -117,4 +117,4 @@ Install
 npm i reactive-box
 ```
 
-Cheers and happy coding! 👋
+Thank you for your time!
