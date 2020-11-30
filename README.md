@@ -15,7 +15,7 @@ It only three functions:
 + `expr` - is the expression who detects all boxes and selectors read inside and reacted If some of them changed.
 
 ```javascript
-import { box, sel, expr } import "reactive-box";
+import { box, sel, expr } from "reactive-box";
 
 const [get, set] = box(0);
 const [next] = sel(() => get() + 1);
