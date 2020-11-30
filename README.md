@@ -6,7 +6,7 @@ Hi friends! Today I will tell you how I came to this.
 
 Redux has so many different functions, Mobx has mutable objects by default, Angular so heavy, Vue so strange, and other them so young :sweat_smile:
 
-These funny thoughts served as fuel for writing the minimal reaction core. So that everyone can make their own syntax for managing the state of the application in 100-150 lines :+1:
+These funny thoughts served as fuel for writing the minimal reaction core. So that everyone can make their own syntax for managing the state of the application in less than 100 lines of code :+1:
 
 It only three functions:
 
@@ -28,16 +28,78 @@ set(get() + 1);
 
 [Try It on RunKit!](https://runkit.com/betula/5fbf60565572d7001a76cd29)
 
-Basic examples:
+Basic usage examples:
 
 - [Counter with Node.js on RunKit](https://runkit.com/betula/5fbde8473dd2b0001bb8f9be)
 - [Counter with React on CodeSandbox](https://codesandbox.io/s/reactive-box-counter-35bp9?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 
 It is minimal core for a big family of state managers' syntax. You can use the different syntax of your data flow on one big project, but the single core of your reactions provides the possibility for easy synchronization between them.
 
-Examples of state managers' syntax:
+Mobx like syntax example:
 
-- [Simple store and actions and only hooks with React on CodeSandbox](https://codesandbox.io/s/reactive-box-store-nku88?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
+```javascript
+import { computed, immutable, observe, shared } from "./core";
+
+class Counter {
+  @immutable value = 0;
+
+  @computed get next() {
+    return this.value + 1;
+  }
+
+  increment = () => this.value += 1;
+  decrement = () => this.value -= 1;
+}
+
+const App = observe(() => {
+  const { value, next, increment, decrement } = shared(Counter);
+
+  return (
+    <p>
+      Counter: {value} (next value: {next})
+      <br />
+      <button onClick={decrement}>Prev</button>
+      <button onClick={increment}>Next</button>
+    </p>
+  );
+});
+```
+
+[Try It on CodeSandbox](https://codesandbox.io/s/reactive-box-mobx-like-counter-nv8rq?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
+
+Effector like syntax example:
+
+```javascript
+import { action, store, selector, useState } from "./core";
+
+const increment = action();
+const decrement = action();
+
+const counter = store(0)
+  .on(increment, (state) => state + 1)
+  .on(decrement, (state) => state - 1);
+
+const next = selector(() => counter.get() + 1);
+
+const App = () => {
+  const value = useState(counter);
+  const nextValue = useState(next);
+
+  return (
+    <p>
+      Counter: {value} (next value: {nextValue})
+      <br />
+      <button onClick={decrement}>Prev</button>
+      <button onClick={increment}>Next</button>
+    </p>
+  );
+}
+```
+
+[Try It on CodeSandbox](https://codesandbox.io/s/reactive-box-store-nku88?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
+
+More examples:
+
 - [Simple model with React on CodeSandbox](https://codesandbox.io/s/reactive-box-model-yopk5?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 - [Mobx like todo-mvc with React on CodeSandbox](https://codesandbox.io/s/reactive-box-todos-u5q3e?hidenavigation=1&module=%2Fsrc%2Fshared%2Ftodos.ts)
 
@@ -45,7 +107,7 @@ Articles
 
 - [664 Bytes reactivity on dev.to](https://dev.to/betula/reactive-box-1hm5)
 
-You can make your own state manager system or another observable and reactive data flow. It so fun!
+You can easily make your own state manager system or another observable and reactive data flow. It's so funny :blush:
 
 Install
 
