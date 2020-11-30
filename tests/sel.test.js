@@ -23,12 +23,30 @@ describe("Sel", () => {
   test("should work custom comparer", () => {
     const spy = jest.fn();
     const a = mut(0);
-    const s = selec(() => (a.val, NaN), (val, prev) => val === prev);
+    const s = selec(() => (a.val, NaN), (val, next) => val === next);
     run(() => spy(s()));
 
     expect(spy).toBeCalledTimes(1);
     a.val = 1;
     expect(spy).toBeCalledTimes(2);
+  });
+
+  test("should update cache only if comparer return false", () => {
+    const d1 = {a: 0};
+    const d2 = {a: 0};
+    const d3 = {a: 1};
+    const spy = jest.fn();
+    const a = mut(d1);
+    const s = selec(() => a.val, (val, next) => val.a === next.a);
+    run(() => spy(s()));
+
+    expect(spy).toBeCalledTimes(1);
+    a.val = d2;
+    expect(s()).not.toBe(d2);
+    expect(spy).toBeCalledTimes(1);
+    a.val = d3;
+    expect(spy).toBeCalledTimes(2);
+    expect(s()).toBe(d3);
   });
 
   test("sel should exclude from graph and invalidate after free", () => {

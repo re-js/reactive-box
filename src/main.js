@@ -97,22 +97,23 @@ const sel = (body, comparer = Object.is) => {
     const stack = context_node;
     context_node = sel_node;
     try {
-      cache = body.call(last_context);
+      return body.call(last_context);
     } finally {
       context_node = stack;
     }
   }
   const sel_node = [new Set(), new Set(), 0, () => {
-    let prev = cache;
-    run();
-    return !comparer(cache, prev);
+    let next = run();
+    return comparer(cache, next)
+      ? false
+      : ((cache = next), true);
   }];
   return [
     function () {
       read(sel_node);
       last_context = this;
       if (!sel_node[2]) {
-        run();
+        cache = run();
         sel_node[2] = 1;
       }
       return cache;
