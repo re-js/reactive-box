@@ -38,6 +38,7 @@ It is minimal core for a big family of state managers' syntax. You can use the d
 Mobx like syntax example ([57 lines of core](https://codesandbox.io/s/reactive-box-mobx-like-counter-nv8rq?hidenavigation=1&module=/src/App.tsx&file=/src/core.ts)):
 
 ```javascript
+import React from "react";
 import { computed, immutable, observe, shared } from "./core";
 
 class Counter {
@@ -70,6 +71,7 @@ const App = observe(() => {
 Effector like syntax example ([76 lines of core](https://codesandbox.io/s/reactive-box-store-nku88?hidenavigation=1&module=/src/App.tsx&file=/src/core.ts)):
 
 ```javascript
+import React from "react";
 import { action, store, selector, useState } from "./core";
 
 const increment = action();
