@@ -22,8 +22,8 @@ const [next] = sel(() => get() + 1);
 const [run, stop] = expr(() => {
   console.log(`Counter: ${get()} (next value: ${next()})`)
 });
-run();
-set(get() + 1);
+run();          // "Counter 0 (next value: 1)"
+set(get() + 1); // "Counter 1 (next value: 2)"
 ```
 
 [Try It on RunKit!](https://runkit.com/betula/5fbf60565572d7001a76cd29)
