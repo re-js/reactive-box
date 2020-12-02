@@ -19,10 +19,10 @@ import { box, sel, expr } from "reactive-box";
 
 const [get, set] = box(0);
 const [next] = sel(() => get() + 1);
-const [run, stop] = expr(() => {
+const [start, stop] = expr(() => {
   console.log(`Counter: ${get()} (next value: ${next()})`)
 });
-run();          // "Counter 0 (next value: 1)"
+start();        // "Counter 0 (next value: 1)"
 set(get() + 1); // "Counter 1 (next value: 2)"
 ```
 
