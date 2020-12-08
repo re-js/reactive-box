@@ -50,7 +50,7 @@ For example that possible syntax to transcript previous javascript code:
 5. And subscribe to change of `a` and `next` reactive dependencies
 6. We are increasing the value of reactive `a` for demonstration subscriber reaction
 
-Below we will talk about more high level abstraction, to the world of React and integration reactive-box into, for best possibilities togather!
+Below we will talk about more high level abstraction, to the world of React and integration reactive-box into, for best possibilities together!
 
 Basic usage examples:
 
