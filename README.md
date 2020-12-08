@@ -28,6 +28,30 @@ set(get() + 1); // "Counter 1 (next value: 2)"
 
 [Try It on RunKit!](https://runkit.com/betula/5fbf60565572d7001a76cd29)
 
+It is a basis for full feature reactive mathematic!
+For example that possible syntax to transcript previous javascript code:
+
+```javascript
+  a` = 0
+  next` = a` + 1
+  expr` = "Counter: ${a`} (next value: ${next`})"
+  
+  // Call the expr and subscribe to It
+  console.log(expr`())  // message to console "Counter: 0 (next value: 1)"
+  subscribe(expr`, value => console.log(value))
+  
+  a` = a` + 1   // here will be fired log to console again with new "Counter: 1 (next value: 2)" message, because a` was changed.
+```
+
+1. We create reactive `a`
+2. We create reactive expression `a + 1`
+3. We create reactive expression `"Counter: ${a} (next value: ${next})"`
+4. We run reactive expression
+5. And subscribe to change of `a` and `next` reactive dependencies
+6. We are increasing the value of reactive `a` for demonstration subscriber reaction
+
+Below we will talk about more high level abstraction, to the world of React and integration reactive-box into, for best possibilities togather!
+
 Basic usage examples:
 
 - [Counter with Node.js on RunKit](https://runkit.com/betula/5fbde8473dd2b0001bb8f9be)
