@@ -38,7 +38,7 @@ For example that possible syntax to transcript previous javascript code:
   
   // Call the expr and subscribe to It
   console.log(expr())                         // message to console "Counter: 0 (next value: 1)"
-  subscribe(expr, value => console.log(value))
+  reaction(expr, value => console.log(value))
   
   a` = a` + 1   // here will be fired log to console again with new "Counter: 1 (next value: 2)" message, because a` was changed.
 ```
