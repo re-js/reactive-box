@@ -40,7 +40,7 @@ For example that possible syntax to transcript previous javascript code:
   next` = a` + 1        // create new reactive value, dependent on the previous one
   expr = { "Counter: ${a`} (next value: ${next`})" }  // create reactive expression
 
-  // subscribe to expression was changed and run it again
+  // subscribe to expression dependencies were change and run It again
   expr: () => console.log(expr()) 
 
   // run the expression
