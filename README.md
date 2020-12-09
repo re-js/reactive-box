@@ -56,6 +56,16 @@ For example that possible syntax to transcript previous javascript code:
 5. We run reactive expression
 6. We are increasing the value of reactive `a` for demonstration subscriber reaction
 
+These are three basic elements necessary for creating data flow any difficulty.
+
+The first element is a reactive container for an immutable value. All reactions beginning from container change value reaction.
+
+The second one is the middle element. It uses all reactive containers as a source of values and returns the result of the expression. It's a transformer set of reactive values to a single one. The selector can be used as a reactive container in other selectors and expressions.
+
+It subscribes to change in any of the dependencies. And will recalculate the value if some of the dependency changed.
+
+And the last one is a reaction subscriber. It provides the possibility to subscribe to change any set of reactive containers. It can be run again after the listener was called.
+
 Below we will talk about more high level abstraction, to the world of React and integration reactive-box into, for best possibilities together!
 
 Basic usage examples:
