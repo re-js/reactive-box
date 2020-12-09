@@ -35,7 +35,7 @@ set(get() + 1);     // console: "Counter 1 (next value: 2)"
 It is a basis for full feature reactive mathematic!
 For example that possible syntax to transcript previous javascript code:
 
-```javascript
+```
   a` = 0                // create reactive value
   next` = a` + 1        // create new reactive value, dependent on the previous one
   expr = { "Counter: ${a`} (next value: ${next`})" }  // create reactive expression
