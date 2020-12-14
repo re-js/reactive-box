@@ -1,4 +1,4 @@
-const { mut, selec, sel, run, runer } = require("./lib");
+const { mut, selec, sel, comp, run, runer } = require("./lib");
 
 describe("Sel", () => {
   test("sel run only once on each box change with one box", () => {
@@ -106,5 +106,22 @@ describe("Sel", () => {
     e.call(["b"]);
     a.val = 2;
     expect(spy).toHaveBeenLastCalledWith(["b"], 2);
+  });
+
+  test("should save consistent data", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const n1 = comp(() => a.val + 1);
+    const n1_1 = comp(() => n1.val + 1);
+    const n1_1_1 = comp(() => n1_1.val + 1);
+    const n2 = comp(() => spy(a.val + '-' + n1_1_1.val));
+
+    run(() => n2.val);
+
+    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenLastCalledWith('0-3');
+    a.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(2, '1-4');
+    expect(spy).toBeCalledTimes(2);
   });
 });
