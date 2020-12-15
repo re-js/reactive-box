@@ -23,7 +23,10 @@ describe("Sel", () => {
   test("should work custom comparer", () => {
     const spy = jest.fn();
     const a = mut(0);
-    const s = selec(() => (a.val, NaN), (val, next) => val === next);
+    const s = selec(
+      () => (a.val, NaN),
+      (val, next) => val === next
+    );
     run(() => spy(s()));
 
     expect(spy).toBeCalledTimes(1);
@@ -32,12 +35,15 @@ describe("Sel", () => {
   });
 
   test("should update cache only if comparer return false", () => {
-    const d1 = {a: 0};
-    const d2 = {a: 0};
-    const d3 = {a: 1};
+    const d1 = { a: 0 };
+    const d2 = { a: 0 };
+    const d3 = { a: 1 };
     const spy = jest.fn();
     const a = mut(d1);
-    const s = selec(() => a.val, (val, next) => val.a === next.a);
+    const s = selec(
+      () => a.val,
+      (val, next) => val.a === next.a
+    );
     run(() => spy(s()));
 
     expect(spy).toBeCalledTimes(1);
@@ -114,14 +120,14 @@ describe("Sel", () => {
     const n1 = comp(() => a.val + 1);
     const n1_1 = comp(() => n1.val + 1);
     const n1_1_1 = comp(() => n1_1.val + 1);
-    const n2 = comp(() => spy(a.val + '-' + n1_1_1.val));
+    const n2 = comp(() => spy(a.val + "-" + n1_1_1.val));
 
     run(() => n2.val);
 
     expect(spy).toBeCalledTimes(1);
-    expect(spy).toHaveBeenLastCalledWith('0-3');
+    expect(spy).toHaveBeenLastCalledWith("0-3");
     a.val = 1;
-    expect(spy).toHaveBeenNthCalledWith(2, '1-4');
+    expect(spy).toHaveBeenNthCalledWith(2, "1-4");
     expect(spy).toBeCalledTimes(2);
   });
 });

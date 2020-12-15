@@ -35,7 +35,7 @@ const write = (box_node) => {
     const level = rel[2];
 
     let list = level_nodes.get(level);
-    !list && level_nodes.set(level, list = new Set());
+    !list && level_nodes.set(level, (list = new Set()));
 
     list.add(rel);
     levels.add(level);
@@ -82,8 +82,7 @@ const write = (box_node) => {
         const expr_iter = exprs.values();
         let expr_node;
 
-        expr_loop:
-        while ((expr_node = expr_iter.next().value)) {
+        expr_loop: while ((expr_node = expr_iter.next().value)) {
           expr_node[0]();
           exprs.delete(expr_node);
 
@@ -98,8 +97,7 @@ const write = (box_node) => {
 
         if (!--limit) throw new Error("Infinity reactions loop");
       }
-    }
-    finally {
+    } finally {
       write_phase = 0;
       level_nodes.clear();
       levels.clear();
@@ -142,14 +140,19 @@ const sel = (body, comparer = Object.is) => {
     } finally {
       context_node = stack;
     }
-  }
+  };
   // rels, deps, level, is_cached, checker
-  const sel_node = [new Set(), new Set(), 0, 0, () => {
-    let next = run();
-    return comparer(cache, next)
-      ? false
-      : ((cache = next), true);
-  }];
+  const sel_node = [
+    new Set(),
+    new Set(),
+    0,
+    0,
+    () => {
+      let next = run();
+      return comparer(cache, next) ? false : ((cache = next), true);
+    },
+  ];
+
   return [
     function () {
       last_context = this;
