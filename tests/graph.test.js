@@ -51,8 +51,8 @@ describe("Graph", () => {
     const a = mut(0);
     const b = mut(0);
 
-    const n1 = comp(() => a.val);
-    const n2 = comp(() => n1.val);
+    const n1 = comp(() => a.val + 1);
+    const n2 = comp(() => n1.val + 1);
     const r1 = comp(() => a.val + '-' + n2.val);
     run(() => {
       spy1(r1.val);
@@ -66,7 +66,18 @@ describe("Graph", () => {
       spy2(r2.val);
     });
 
-    expect(spy).toBeCalledTimes(0);
+    expect(spy1).toHaveBeenNthCalledWith(1, '0-2');
+    expect(spy1).toBeCalledTimes(1);
+    expect(spy2).toHaveBeenNthCalledWith(1, '0-2-0');
+    expect(spy2).toBeCalledTimes(1);
+
+    a.val = 1;
+
+    expect(spy1).toHaveBeenNthCalledWith(2, '1-3');
+    expect(spy1).toHaveBeenNthCalledWith(3, '2-4');
+    expect(spy1).toBeCalledTimes(3);
+    expect(spy2).toHaveBeenNthCalledWith(2, '2-4-1');
+    expect(spy2).toBeCalledTimes(2);
   });
 
 });

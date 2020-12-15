@@ -39,8 +39,9 @@ describe("Box", () => {
     a.val = 5;
     expect(spy).toHaveBeenCalledTimes(2);
 
-    expect(spy1).toHaveBeenCalledTimes(3);
+    expect(spy1).toHaveBeenNthCalledWith(1, 0);
     expect(spy1).toHaveBeenNthCalledWith(2, 1);
     expect(spy1).toHaveBeenNthCalledWith(3, 5);
+    expect(spy1).toHaveBeenCalledTimes(3);
   });
 });
