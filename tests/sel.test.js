@@ -113,15 +113,14 @@ describe("Sel", () => {
     const a = mut(0);
     const n1 = comp(() => a.val + 1);
     const n1_1 = comp(() => n1.val + 1);
-    const n1_1_1 = comp(() => n1_1.val + 1);
-    const n2 = comp(() => spy(a.val + '-' + n1_1_1.val));
+    const n2 = comp(() => spy(a.val + '-' + n1_1.val));
 
     run(() => n2.val);
 
     expect(spy).toBeCalledTimes(1);
-    expect(spy).toHaveBeenLastCalledWith('0-3');
+    expect(spy).toHaveBeenLastCalledWith('0-2');
     a.val = 1;
-    expect(spy).toHaveBeenNthCalledWith(2, '1-4');
+    expect(spy).toHaveBeenNthCalledWith(2, '1-3');
     expect(spy).toBeCalledTimes(2);
   });
 });

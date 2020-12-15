@@ -44,4 +44,29 @@ describe("Graph", () => {
     expect(spy).toHaveBeenCalledTimes(3);
     expect(spy).toHaveBeenNthCalledWith(3, 3);
   });
+
+  test("deep struct with modify", () => {
+    const spy1 = jest.fn();
+    const spy2 = jest.fn();
+    const a = mut(0);
+    const b = mut(0);
+
+    const n1 = comp(() => a.val);
+    const n2 = comp(() => n1.val);
+    const r1 = comp(() => a.val + '-' + n2.val);
+    run(() => {
+      spy1(r1.val);
+      if (a.val === 1) {
+        a.val = 2;
+        b.val = 1;
+      }
+    });
+    const r2 = comp(() => r1.val + '-' + b.val);
+    run(() => {
+      spy2(r2.val);
+    });
+
+    expect(spy).toBeCalledTimes(0);
+  });
+
 });

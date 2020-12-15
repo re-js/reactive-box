@@ -1,11 +1,17 @@
 /**
  * 0: rels or (sync for expr)
  * 1: deps
- * 2: (valid for sel)
- * 3: (recalc for sel)
+ * 2: deep
+ * 3: (valid for sel)
+ * 4: (recalc for sel)
  */
 let context_node;
-let active_bound;
+// let active_bound;
+let write_phase;
+let level_nodes = new Map();
+let levels = new Set();
+// let invalid = new Set();
+// let valid = new Set();
 
 // node: sel or expr node
 // type: 0 - rels, 1 - deps
@@ -19,57 +25,71 @@ const read = (node) => {
   if (context_node) {
     context_node[1].add(node);
     node[0].add(context_node);
+
+    // calculate deep
+    if (context_node[2] < node[2] + 1) {
+      context_node[2] = node[2] + 1;
+    }
   }
 };
 
 const write = (box_node) => {
-  if (active_bound) box_node[0].forEach((rel) => active_bound.add(rel));
-  else {
-    const exprs = new Set();
-    const sels = new Set();
-    let limit = 10000;
+  box_node[0].forEach((rel) => {
+    const level = rel[2];
 
-    active_bound = new Set(box_node[0]);
+    let list = level_nodes.get(level);
+    !list && level_nodes.set(level, list = new Set());
+
+    list.add(rel);
+    levels.add(level);
+  });
+
+  if (!write_phase) {
+    write_phase = 1;
+
     try {
-      while (active_bound.size) {
-        active_bound.forEach((node) => {
-          if (node.length === 2) exprs.add(node);
+      let limit = 10000;
+
+      while (levels.size) {
+        const iter = levels.values();
+        let current = iter.next().value;
+
+        while ((level = iter.next().value)) {
+          if (level < current) current = level;
+        }
+
+        const nodes = level_nodes.get(current);
+
+        nodes.forEach((node) => {
+          if (node.length === 3) node[0]();
           else {
-            if (node[0].size) sels.add(node);
-            else node[2] = 0;
+            // Perform selector
+            if (node[0].size) {
+              if (node[4]()) { // if propogate changes
+                write(node);
+                free(node, 0);
+              }
+            }
+            else node[3] = 0;
           }
           free(node, 1);
         });
-        active_bound.clear();
 
-        sels.forEach((sel_node) => {
-          if (sel_node[3]()) {
-            sel_node[0].forEach((rel) => active_bound.add(rel));
-            free(sel_node, 0);
-          }
-        });
-        sels.clear();
-
-        if (!active_bound.size) {
-          const iter = exprs.values();
-          let expr_node;
-          while ((expr_node = iter.next().value)) {
-            expr_node[0]();
-            exprs.delete(expr_node);
-            if (active_bound.size) break;
-          }
-        }
-
+        levels.delete(current);
         if (!--limit) throw new Error("Infinity reactions loop");
       }
-    } finally {
-      active_bound = 0;
+    }
+    finally {
+      write_phase = 0;
+      level_nodes.clear();
+      levels.clear();
     }
   }
 };
 
 const box = (value, change_listener, comparer = Object.is) => {
-  const box_node = [new Set()];
+  // rels, _, deep
+  const box_node = [new Set(), 0, 0];
   return [
     () => (read(box_node), value),
     change_listener
@@ -96,13 +116,15 @@ const sel = (body, comparer = Object.is) => {
   const run = () => {
     const stack = context_node;
     context_node = sel_node;
+    context_node[2] = 0; // clear deep
     try {
       return body.call(last_context);
     } finally {
       context_node = stack;
     }
   }
-  const sel_node = [new Set(), new Set(), 0, () => {
+  // rels, deps, deep, is_cached, checker
+  const sel_node = [new Set(), new Set(), 0, 0, () => {
     let next = run();
     return comparer(cache, next)
       ? false
@@ -110,18 +132,18 @@ const sel = (body, comparer = Object.is) => {
   }];
   return [
     function () {
-      read(sel_node);
       last_context = this;
-      if (!sel_node[2]) {
+      if (!sel_node[3]) {
         cache = run();
-        sel_node[2] = 1;
+        sel_node[3] = 1;
       }
+      read(sel_node);
       return cache;
     },
     () => {
       free(sel_node, 1);
       free(sel_node, 0);
-      sel_node[2] = cache = 0;
+      sel_node[3] = cache = 0;
       last_context = null;
     },
   ];
@@ -130,13 +152,17 @@ const sel = (body, comparer = Object.is) => {
 const expr = (body, sync) => {
   let last_context;
   if (!sync) sync = () => run.call(last_context);
-  const expr_node = [sync, new Set()];
+
+  // sync, deps, deep
+  const expr_node = [sync, new Set(), 0];
+
   function run() {
     let result;
     const stack = context_node;
 
     expr_node[1].size && free(expr_node, 1);
     context_node = expr_node;
+    context_node[2] = 0; // clear deep
     try {
       result = body.apply((last_context = this), arguments);
     } finally {
@@ -144,6 +170,7 @@ const expr = (body, sync) => {
     }
     return result;
   }
+
   return [
     run,
     () => {
