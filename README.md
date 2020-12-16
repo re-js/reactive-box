@@ -66,6 +66,11 @@ It subscribes to change in any of the dependencies. And will recalculate the val
 
 And the last one is a reaction subscriber. It provides the possibility to subscribe to change any set of reactive containers. It can be run again after the listener was called.
 
+- It's designed to make [dirty reads](https://en.wikipedia.org/wiki/Isolation_%28database_systems%29#Dirty_reads) impossible - your reactions will only be called when there is a consistent state for them to run on. _Such is known as dependency tracking or a diamond problem._
+
+- It runs calculations synchronously.
+
+
 Below we will talk about more high level abstraction, to the world of React and integration reactive-box into, for best possibilities together!
 
 Basic usage examples:
