@@ -9,6 +9,7 @@ let context_node;
 let write_phase;
 let level_nodes = new Map();
 let levels = new Set();
+let write_called;
 
 // node: sel or expr node
 // type: 0 - rels, 1 - deps
@@ -31,6 +32,7 @@ const read = (node) => {
 };
 
 const write = (box_node) => {
+  write_called = 1;
   box_node[0].forEach((rel) => {
     const level = rel[2];
 
@@ -79,6 +81,8 @@ const write = (box_node) => {
           }
         });
 
+        const stack = write_called;
+        write_called = 0;
         const expr_iter = exprs.values();
         let expr_node;
 
@@ -86,14 +90,9 @@ const write = (box_node) => {
           expr_node[0]();
           exprs.delete(expr_node);
 
-          const levels_iter = levels.values();
-          let level;
-          while ((level = levels_iter.next().value)) {
-            if (level < current) {
-              break expr_loop;
-            }
-          }
+          if (write_called && levels.size) break expr_loop;
         }
+        write_called = stack;
 
         if (!--limit) throw new Error("Infinity reactions loop");
       }
@@ -132,13 +131,22 @@ const sel = (body, comparer = Object.is) => {
   let cache;
   let last_context;
   const run = () => {
-    const stack = context_node;
+    const stack_context_node = context_node;
+    const stack_write_called = write_called;
+
     context_node = sel_node;
     context_node[2] = 0; // clear level
+    write_called = 0;
+
     try {
-      return body.call(last_context);
+      const result = body.call(last_context);
+
+      if (write_called) throw new Error("Write not allowed in selector");
+
+      return result;
     } finally {
-      context_node = stack;
+      context_node = stack_context_node;
+      write_called = stack_write_called;
     }
   };
   // rels, deps, level, is_cached, checker

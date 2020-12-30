@@ -130,4 +130,12 @@ describe("Sel", () => {
     expect(spy).toHaveBeenNthCalledWith(2, "1-4");
     expect(spy).toBeCalledTimes(2);
   });
+
+  test("should not allow modification in selector", () => {
+    const a = mut(0);
+    const c = comp(() => {
+      return (a.val = a.val + 1);
+    });
+    expect(() => c.val).toThrow("Write not allowed in selector");
+  });
 });
