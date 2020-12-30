@@ -81,22 +81,22 @@ const write = (box_node) => {
           }
         });
 
-        const stack = write_called;
-        write_called = 0;
         const expr_iter = exprs.values();
         let expr_node;
 
         expr_loop: while ((expr_node = expr_iter.next().value)) {
+          write_called = 0;
+
           expr_node[0]();
           exprs.delete(expr_node);
 
           if (write_called && levels.size) break expr_loop;
         }
-        write_called = stack;
 
         if (!--limit) throw new Error("Infinity reactions loop");
       }
     } finally {
+      write_called = 1;
       write_phase = 0;
       level_nodes.clear();
       levels.clear();
