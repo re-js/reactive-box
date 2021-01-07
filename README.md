@@ -72,7 +72,7 @@ And the last one is a reaction subscriber. It provides the possibility to subscr
 
 - It runs calculations synchronously.
 
-- It's designed to make [dirty reads](https://en.wikipedia.org/wiki/Isolation_%28database_systems%29#Dirty_reads) impossible - your reactions will only be called when there is a consistent state for them to run on. _The dependency tracking and the diamond problem solved._
+- It's designed to make [dirty reads](https://en.wikipedia.org/wiki/Isolation_%28database_systems%29#Dirty_reads) impossible - your reactions will only be called when there is a consistent state for them to run on ([algorithm](https://medium.com/hackernoon/becoming-fully-reactive-an-in-depth-explanation-of-mobservable-55995262a254#71b1)). _It's the solution for dependency tracking and the diamond problem._
 
 ### In the real world
 
@@ -85,7 +85,7 @@ Basic usage examples:
 
 It is minimal core for a big family of state managers' syntax. You can use the different syntax of your data flow on one big project, but the single core of your reactions provides the possibility for easy synchronization between them.
 
-#### Mobx like syntax example ([57 lines of core](https://codesandbox.io/s/reactive-box-mobx-like-counter-nv8rq?hidenavigation=1&module=/src/App.tsx&file=/src/core.ts)):
+#### Mobx like syntax example ([57 lines of reactive core](https://codesandbox.io/s/reactive-box-mobx-like-counter-nv8rq?hidenavigation=1&module=/src/App.tsx&file=/src/core.ts)):
 
 ```javascript
 import React from "react";
@@ -118,7 +118,7 @@ const App = observe(() => {
 
 [Try It on CodeSandbox](https://codesandbox.io/s/reactive-box-mobx-like-counter-nv8rq?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 
-#### Effector like syntax example ([76 lines of core](https://codesandbox.io/s/reactive-box-store-nku88?hidenavigation=1&module=/src/App.tsx&file=/src/core.ts)):
+#### Effector like syntax example ([76 lines of reactive core](https://codesandbox.io/s/reactive-box-store-nku88?hidenavigation=1&module=/src/App.tsx&file=/src/core.ts)):
 
 ```javascript
 import React from "react";
@@ -154,6 +154,7 @@ const App = () => {
 
 - [Simple model with React on CodeSandbox](https://codesandbox.io/s/reactive-box-model-yopk5?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 - [Mobx like todo-mvc with React on CodeSandbox](https://codesandbox.io/s/reactive-box-todos-u5q3e?hidenavigation=1&module=%2Fsrc%2Fshared%2Ftodos.ts)
+- [Realar state manager](https://github.com/betula/realar)
 
 ### Articles about
 
