@@ -11,7 +11,7 @@ These funny thoughts served as fuel for writing the minimal reaction core. So th
 It only three functions:
 
 + `box` - is the container for an immutable value.
-+ `sel` - is the cached selector (or computed value in another terminology) who will mark for recalculating If some of read inside boxes or selectors changed.
++ `sel` - is the cached selector (or computed value) who will mark for recalculating If some of read inside boxes or selectors changed.
 + `expr` - is the expression who detects all boxes and selectors read inside and reacted If some of them changed.
 
 ```javascript
@@ -56,20 +56,25 @@ For example that possible syntax to transcript previous javascript code:
 5. We run reactive expression
 6. We are increasing the value of reactive `a` for demonstration subscriber reaction
 
+### Atomic
+
 These are three basic elements necessary for creating data flow any difficulty.
 
 The first element is a reactive container for an immutable value. All reactions beginning from container change value reaction.
 
 The second one is the middle element. It uses all reactive containers as a source of values and returns the result of the expression. It's a transformer set of reactive values to a single one. The selector can be used as a reactive container in other selectors and expressions.
 
-It subscribes to change in any of the dependencies. And will recalculate the value if some of the dependency changed.
+It subscribes to change in any of the dependencies. And will recalculate the value if some of the dependency changed, but will propagate changes only if the return value changed.
 
 And the last one is a reaction subscriber. It provides the possibility to subscribe to change any set of reactive containers. It can be run again after the listener was called.
 
-- It's designed to make [dirty reads](https://en.wikipedia.org/wiki/Isolation_%28database_systems%29#Dirty_reads) impossible - your reactions will only be called when there is a consistent state for them to run on. _Such is known as dependency tracking or a diamond problem._
+### Deep inside
 
 - It runs calculations synchronously.
 
+- It's designed to make [dirty reads](https://en.wikipedia.org/wiki/Isolation_%28database_systems%29#Dirty_reads) impossible - your reactions will only be called when there is a consistent state for them to run on. _The task of dependency tracking or a diamond problem solved._
+
+### In the real world
 
 Below we will talk about more high level abstraction, to the world of React and integration reactive-box into, for best possibilities together!
 
@@ -80,7 +85,7 @@ Basic usage examples:
 
 It is minimal core for a big family of state managers' syntax. You can use the different syntax of your data flow on one big project, but the single core of your reactions provides the possibility for easy synchronization between them.
 
-Mobx like syntax example ([57 lines of core](https://codesandbox.io/s/reactive-box-mobx-like-counter-nv8rq?hidenavigation=1&module=/src/App.tsx&file=/src/core.ts)):
+#### Mobx like syntax example ([57 lines of core](https://codesandbox.io/s/reactive-box-mobx-like-counter-nv8rq?hidenavigation=1&module=/src/App.tsx&file=/src/core.ts)):
 
 ```javascript
 import React from "react";
@@ -113,7 +118,7 @@ const App = observe(() => {
 
 [Try It on CodeSandbox](https://codesandbox.io/s/reactive-box-mobx-like-counter-nv8rq?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 
-Effector like syntax example ([76 lines of core](https://codesandbox.io/s/reactive-box-store-nku88?hidenavigation=1&module=/src/App.tsx&file=/src/core.ts)):
+#### Effector like syntax example ([76 lines of core](https://codesandbox.io/s/reactive-box-store-nku88?hidenavigation=1&module=/src/App.tsx&file=/src/core.ts)):
 
 ```javascript
 import React from "react";
@@ -145,21 +150,21 @@ const App = () => {
 
 [Try It on CodeSandbox](https://codesandbox.io/s/reactive-box-store-nku88?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 
-More examples:
+### More imteresting examples
 
 - [Simple model with React on CodeSandbox](https://codesandbox.io/s/reactive-box-model-yopk5?hidenavigation=1&module=%2Fsrc%2FApp.tsx)
 - [Mobx like todo-mvc with React on CodeSandbox](https://codesandbox.io/s/reactive-box-todos-u5q3e?hidenavigation=1&module=%2Fsrc%2Fshared%2Ftodos.ts)
 
-Articles
+### Articles about
 
 - [664 Bytes reactivity on dev.to](https://dev.to/betula/reactive-box-1hm5)
 
 You can easily make your own state manager system or another observable and reactive data flow. It's so funny :blush:
 
-Install
+### How to install
 
 ```bash
 npm i reactive-box
 ```
 
-Thank you for your time!
+Thanks for your time!
