@@ -131,11 +131,31 @@ describe("Sel", () => {
     expect(spy).toBeCalledTimes(2);
   });
 
-  test("should not allow modification in selector", () => {
+  test("should allow modification in selector", () => {
     const a = mut(0);
     const c = comp(() => {
-      return (a.val = a.val + 1);
+      return (a.val = a.val || 10);
     });
-    expect(() => c.val).toThrow("Write not allowed in selector");
+
+    expect(c.val).toBe(10);
+  });
+
+  test("should safe consistent for modifiable selector", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const c = comp(() => {
+      if (a.val < 10) {
+        a.val += 1;
+      }
+      return a.val;
+    });
+    run(() => {
+      const m = c.val;
+      spy(m);
+    });
+
+    expect(spy).toHaveBeenNthCalledWith(1, 10);
+    expect(spy).toHaveBeenNthCalledWith(2, 10);
+    expect(spy).toBeCalledTimes(2);
   });
 });

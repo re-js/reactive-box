@@ -8,8 +8,9 @@
 let context_node;
 let write_phase;
 let level_nodes = new Map();
-let levels = new Set();
+let level_current = 0;
 let write_called;
+let writable_selectors = new Set();
 
 // node: sel or expr node
 // type: 0 - rels, 1 - deps
@@ -23,92 +24,101 @@ const read = (node) => {
   if (context_node) {
     context_node[1].add(node);
     node[0].add(context_node);
+  }
+};
 
-    // calculate level
+const calculate_level = (node) => {
+  if (context_node) {
     if (context_node[2] < node[2] + 1) {
       context_node[2] = node[2] + 1;
     }
   }
-};
+}
 
 const write = (box_node) => {
-  write_called = 1;
+  let min_rel_level = box_node[2] + 1;
   box_node[0].forEach((rel) => {
-    const level = rel[2];
+    let level = rel[2];
+    if (level < min_rel_level) {
+      level = rel[2] = min_rel_level;
+    }
 
     let list = level_nodes.get(level);
     !list && level_nodes.set(level, (list = new Set()));
 
+    if (!level_current || level_current > level) level_current = level;
+
     list.add(rel);
-    levels.add(level);
   });
 
   if (!write_phase) {
     write_phase = 1;
 
     try {
-      let limit = 10000;
-      const exprs = new Set();
+      let limit = 100000;
 
-      while (levels.size) {
-        const levels_iter = levels.values();
-        let current = levels_iter.next().value;
+      while(level_current) {
+        const nodes = level_nodes.get(level_current);
 
-        let level;
-        while ((level = levels_iter.next().value)) {
-          if (level < current) current = level;
-        }
+        const iter = nodes.values();
+        let node, lev;
 
-        const nodes = level_nodes.get(current);
-        levels.delete(current);
-        level_nodes.delete(current);
+        while ((node = iter.next().value)) {
+          lev = level_current;
 
-        const sels = [];
+          let expr, sel;
 
-        nodes.forEach((node) => {
-          if (node.length === 3) exprs.add(node);
+          if (node.length === 3) expr = 1;
           else {
-            if (node[0].size) sels.push(node);
+            if (node[0].size) sel = 1;
+            else if (writable_selectors.has(node)) {
+              writable_selectors.delete(node);
+              sel = 1;
+            }
             else node[3] = 0;
           }
+
           free(node, 1);
-        });
+          nodes.delete(node);
 
-        sels.forEach((sel_node) => {
-          if (sel_node[4]()) {
-            write(sel_node);
-            free(sel_node, 0);
+          if (expr) node[0]();
+          if (sel) {
+            write_called = 0;
+            const changed = node[4]();
+            if (write_called) writable_selectors.add(node);
+            if (changed) {
+              write(node);
+              free(node, 0);
+            }
           }
-        });
 
-        const expr_iter = exprs.values();
-        let expr_node;
+          if (!nodes.size && lev === level_current) {
+            level_current = 0;
+            level_nodes.forEach((list, level) =>
+              (list.size && (!level_current || level_current > level)) && (level_current = level)
+            );
+            break;
+          }
 
-        expr_loop: while ((expr_node = expr_iter.next().value)) {
-          write_called = 0;
-
-          expr_node[0]();
-          exprs.delete(expr_node);
-
-          if (write_called && levels.size) break expr_loop;
+          if (level_current < lev) break;
+          if (!--limit) throw new Error("Infinity reactions loop");
         }
-
-        if (!--limit) throw new Error("Infinity reactions loop");
       }
     } finally {
-      write_called = 1;
       write_phase = 0;
       level_nodes.clear();
-      levels.clear();
+      level_current = 0;
+      writable_selectors.clear();
     }
   }
+  write_called = 1;
 };
 
 const box = (value, change_listener, comparer = Object.is) => {
   // rels, _, level
   const box_node = [new Set(), 0, 0];
   return [
-    () => (read(box_node), value),
+    () => (read(box_node), calculate_level(box_node), value),
     change_listener
       ? (next_value) => {
           if (!comparer(value, next_value)) {
@@ -132,21 +142,12 @@ const sel = (body, comparer = Object.is) => {
   let last_context;
   const run = () => {
     const stack_context_node = context_node;
-    const stack_write_called = write_called;
-
     context_node = sel_node;
     context_node[2] = 0; // clear level
-    write_called = 0;
-
     try {
-      const result = body.call(last_context);
-
-      if (write_called) throw new Error("Write not allowed in selector");
-
-      return result;
+      return body.call(last_context);
     } finally {
       context_node = stack_context_node;
-      write_called = stack_write_called;
     }
   };
   // rels, deps, level, is_cached, checker
@@ -164,11 +165,12 @@ const sel = (body, comparer = Object.is) => {
   return [
     function () {
       last_context = this;
+      read(sel_node);
       if (!sel_node[3]) {
         cache = run();
         sel_node[3] = 1;
       }
-      read(sel_node);
+      calculate_level(sel_node);
       return cache;
     },
     () => {
