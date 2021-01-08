@@ -33,7 +33,7 @@ const calculate_level = (node) => {
       context_node[2] = node[2] + 1;
     }
   }
-}
+};
 
 const write = (box_node) => {
   let min_rel_level = box_node[2] + 1;
@@ -57,7 +57,7 @@ const write = (box_node) => {
     try {
       let limit = 100000;
 
-      while(level_current) {
+      while (level_current) {
         const nodes = level_nodes.get(level_current);
 
         const iter = nodes.values();
@@ -74,8 +74,7 @@ const write = (box_node) => {
             else if (writable_selectors.has(node)) {
               writable_selectors.delete(node);
               sel = 1;
-            }
-            else node[3] = 0;
+            } else node[3] = 0;
           }
 
           free(node, 1);
@@ -94,8 +93,11 @@ const write = (box_node) => {
 
           if (!nodes.size && lev === level_current) {
             level_current = 0;
-            level_nodes.forEach((list, level) =>
-              (list.size && (!level_current || level_current > level)) && (level_current = level)
+            level_nodes.forEach(
+              (list, level) =>
+                list.size &&
+                (!level_current || level_current > level) &&
+                (level_current = level)
             );
             break;
           }
