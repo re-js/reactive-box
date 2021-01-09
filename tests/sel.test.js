@@ -140,7 +140,7 @@ describe("Sel", () => {
     expect(c.val).toBe(10);
   });
 
-  test("should safe consistent for modifiable selector", () => {
+  test("should safe consistent for init modifiable selector", () => {
     const spy = jest.fn();
     const a = mut(0);
     const c = comp(() => {
@@ -156,5 +156,30 @@ describe("Sel", () => {
 
     expect(spy).toHaveBeenNthCalledWith(1, 10);
     expect(spy).toBeCalledTimes(1);
+  });
+
+  test("should safe double consistent for modifiable selector and expr", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const b = mut(0);
+    const c = comp(() => {
+      if (a.val < 10) {
+        a.val += 1;
+      }
+      if (b.val === 1) {
+        a.val = 0;
+        b.val = 2;
+      }
+      return a.val;
+    });
+    run(() => {
+      const m = c.val;
+      const v = !b.val ? (b.val = 1, b.val) : b.val;
+      spy(m, v);
+    });
+
+    expect(spy).toHaveBeenNthCalledWith(1, 10, 2);
+    expect(spy).toHaveBeenNthCalledWith(2, 10, 2);
+    expect(spy).toBeCalledTimes(2);
   });
 });
