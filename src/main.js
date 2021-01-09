@@ -36,13 +36,8 @@ const calculate_level = (node) => {
 };
 
 const write = (box_node) => {
-  let min_rel_level = box_node[2] + 1;
   box_node[0].forEach((rel) => {
     let level = rel[2];
-    if (level < min_rel_level) {
-      level = rel[2] = min_rel_level;
-    }
-
     let list = level_nodes.get(level);
     !list && level_nodes.set(level, (list = new Set()));
 

@@ -163,12 +163,11 @@ describe("Sel", () => {
     const a = mut(0);
     const b = mut(0);
     const c = comp(() => {
-      if (a.val < 10) {
-        a.val += 1;
-      }
+      if (a.val < 10) a.val += 1;
+
       if (b.val === 1) {
-        a.val = 0;
-        b.val = 2;
+        if (a.val < 20) a.val += 1;
+        else b.val = 2;
       }
       return a.val;
     });
@@ -178,7 +177,7 @@ describe("Sel", () => {
       spy(m, v);
     });
 
-    expect(spy).toHaveBeenNthCalledWith(1, 10, 2);
+    expect(spy).toHaveBeenNthCalledWith(1, 20, 2);
     expect(spy).toHaveBeenNthCalledWith(2, 10, 2);
     expect(spy).toBeCalledTimes(2);
   });
