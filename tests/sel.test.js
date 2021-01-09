@@ -174,7 +174,7 @@ describe("Sel", () => {
     });
     run(() => {
       const m = c.val;
-      const v = !b.val ? (b.val = 1, b.val) : b.val;
+      const v = !b.val ? ((b.val = 1), b.val) : b.val;
       spy(m, v);
     });
 
