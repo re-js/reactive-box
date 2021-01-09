@@ -155,7 +155,6 @@ describe("Sel", () => {
     });
 
     expect(spy).toHaveBeenNthCalledWith(1, 10);
-    expect(spy).toHaveBeenNthCalledWith(2, 10);
-    expect(spy).toBeCalledTimes(2);
+    expect(spy).toBeCalledTimes(1);
   });
 });
