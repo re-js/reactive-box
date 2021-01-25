@@ -36,15 +36,16 @@ const calculate_level = (node) => {
 };
 
 const write = (box_node) => {
-  box_node[0].forEach((rel) => {
-    let level = rel[2];
-    let list = level_nodes.get(level);
-    !list && level_nodes.set(level, (list = new Set()));
+  box_node &&
+    box_node[0].forEach((rel) => {
+      let level = rel[2];
+      let list = level_nodes.get(level);
+      !list && level_nodes.set(level, (list = new Set()));
 
-    if (!level_current || level_current > level) level_current = level;
+      if (!level_current || level_current > level) level_current = level;
 
-    list.add(rel);
-  });
+      list.add(rel);
+    });
 
   if (!write_phase) {
     write_phase = 1;
@@ -110,6 +111,10 @@ const write = (box_node) => {
   }
   write_called = 1;
 };
+
+const transaction = () => (
+  (write_phase = 1), () => ((write_phase = 0), write())
+);
 
 const box = (value, change_listener, comparer = Object.is) => {
   // rels, _, level
@@ -212,4 +217,4 @@ const expr = (body, sync) => {
   ];
 };
 
-module.exports = { box, sel, expr };
+module.exports = { box, sel, expr, transaction };

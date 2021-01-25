@@ -1,4 +1,6 @@
-const { box, expr, sel } = require("..");
+const { box, expr, sel, transaction } = require("..");
+
+module.exports.transaction = transaction;
 
 module.exports.box = box;
 module.exports.mut = (value, listener, comparer) => {

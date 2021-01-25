@@ -15,4 +15,6 @@ declare function expr<T extends (...args: any[]) => any>(
   updater: () => void
 ): [T, () => void];
 
-export { box, sel, expr };
+declare function transaction(): () => void;
+
+export { box, sel, expr, transaction };
