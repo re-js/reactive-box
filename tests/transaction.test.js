@@ -27,4 +27,28 @@ describe("Transaction", () => {
     expect(spy).toHaveBeenCalledTimes(4);
     expect(spy).toHaveBeenNthCalledWith(4, 22);
   });
+
+  test("should work nested transaction", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const b = mut(0);
+    const c = comp(() => a.val * 10 + b.val);
+    run(() => spy(c.val));
+
+    expect(spy).toHaveBeenNthCalledWith(1, 0);
+    expect(spy).toHaveBeenCalledTimes(1);
+
+    const commit = transaction();
+
+    a.val = 2;
+    const nested = transaction();
+    b.val = 2;
+    a.val = 3;
+    nested();
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    commit();
+    expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenNthCalledWith(2, 32);
+  });
 });

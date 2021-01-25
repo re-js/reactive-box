@@ -112,9 +112,15 @@ const write = (box_node) => {
   write_called = 1;
 };
 
-const transaction = () => (
-  (write_phase = 1), () => ((write_phase = 0), write())
-);
+const transaction = () => {
+  const stack = write_phase;
+  write_phase = 1;
+
+  return () => {
+    write_phase = stack;
+    write();
+  };
+};
 
 const box = (value, change_listener, comparer = Object.is) => {
   // rels, _, level
