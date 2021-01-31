@@ -46,6 +46,30 @@ describe("Graph", () => {
     expect(spy).toHaveBeenNthCalledWith(3, 3);
   });
 
+  test("write and read selector in write phase", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const b = mut(1);
+    const s_1 = comp(() => b.val + 1);
+    const s_2 = comp(() => s_1.val + 1);
+    const s_3 = comp(() => s_2.val + 1);
+
+    const e = expr(() => {
+      if (a.val > 0) {
+        b.val = a.val + 1;
+        spy(s_3.val);
+      }
+    });
+    e[0]();
+
+    expect(s_3.val).toBe(4);
+
+    a.val = 1;
+
+    expect(spy).toHaveBeenNthCalledWith(1, 5);
+    expect(spy).toBeCalledTimes(1);
+  });
+
   test("deep struct with modify", () => {
     const spy1 = jest.fn();
     const spy2 = jest.fn();
@@ -55,15 +79,11 @@ describe("Graph", () => {
     const n1 = comp(() => a.val + 1);
     const n2 = comp(() => n1.val + 1);
     const r1 = comp(() => a.val + "-" + n2.val);
+
     run(() => {
       spy1(r1.val);
       if (a.val === 1) {
         a.val = 2;
-        // Вот тут я должен развернуть
-        // Не полноценную реакцию,
-        // А как будто нет сейчас никакого
-        // Цикла записи и мы модифицируем только a
-        // кажется так не пойдёт.
         b.val = 1;
       }
     });
@@ -82,7 +102,7 @@ describe("Graph", () => {
     expect(spy1).toHaveBeenNthCalledWith(2, "1-3");
     expect(spy1).toHaveBeenNthCalledWith(3, "2-4");
     expect(spy1).toBeCalledTimes(3);
-    expect(spy2).toHaveBeenNthCalledWith(2, "2-4-1");
+    expect(spy2).toHaveBeenNthCalledWith(2, "2-4-1"); // TODO: 2-4-0
     expect(spy2).toBeCalledTimes(2);
   });
 });
