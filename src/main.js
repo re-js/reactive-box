@@ -9,8 +9,6 @@ let context_node;
 let write_phase;
 let level_nodes = new Map();
 let level_current = 0;
-let write_called;
-let writable_selectors = new Set();
 
 // node: sel or expr node
 // type: 0 - rels, 1 - deps
@@ -35,17 +33,12 @@ const calculate_level = (node) => {
   }
 };
 
-const digest = (context_level) => {
+const digest = () => {
   const stack_write_phase = write_phase;
   write_phase = 1;
 
-  // let limit = 1000;
-
   try {
-    while (
-      level_current //&&
-      // (!context_level || level_current < context_level)
-    ) {
+    while (level_current) {
       let nodes = level_nodes.get(level_current);
 
       if (!nodes.size) {
@@ -60,25 +53,15 @@ const digest = (context_level) => {
       if (!level_current) break;
       nodes = level_nodes.get(level_current);
 
-
-      // console.log('>>>', nodes);
-
       const iter = nodes.values();
       const node = iter.next().value;
 
-
-
-
-      // let lev = level_current;
       let expr, sel;
 
       if (node.length === 3) expr = 1;
       else {
         if (node[0].size) sel = 1;
-        else if (writable_selectors.has(node)) {
-          writable_selectors.delete(node);
-          sel = 1;
-        } else node[3] = 0;
+        else node[3] = 0;
       }
 
       free(node, 1);
@@ -86,37 +69,17 @@ const digest = (context_level) => {
 
       if (expr) node[0]();
       if (sel) {
-        const stack = write_called;
-        write_called = 0;
-        const changed = node[4]();
-        if (write_called) writable_selectors.add(node);
-        write_called = stack;
-        if (changed) {
+        if (node[4]()) {
           write(node);
           free(node, 0);
         }
       }
-
-      // if (!nodes.size && lev === level_current) {
-      //   level_current = 0;
-      //   level_nodes.forEach(
-      //     (list, level) =>
-      //       list.size &&
-      //       (!level_current || level_current > level) &&
-      //       (level_current = level)
-      //   );
-      // }
-
-      // if (!--limit) throw new Error("Infinity reactions loop");
     }
   } finally {
     write_phase = stack_write_phase;
     if (!write_phase) {
       level_nodes.clear();
       level_current = 0;
-      writable_selectors.clear();
-    } else {
-      level_current = context_level;
     }
   }
 };
@@ -135,13 +98,11 @@ const write = (box_node) => {
     });
 
   if (write_phase) {
-    // console.log('WRITE PHASE', context_level);
-    digest(context_level);
+    digest();
     level_current = context_level;
   } else {
     digest();
   }
-  write_called = 1;
 };
 
 const transaction = () => {
