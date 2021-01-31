@@ -19,7 +19,8 @@ describe("Graph", () => {
     const r = runer(() => {
       m.val += 1;
     });
-    expect(r).toThrow("Infinity reactions loop");
+    expect(r).toThrow("Maximum call stack size exceeded");
+    // expect(r).toThrow("Infinity reactions loop");
   });
 
   test("two expr with two sels and one shared and second box change in first expr", () => {
@@ -58,6 +59,11 @@ describe("Graph", () => {
       spy1(r1.val);
       if (a.val === 1) {
         a.val = 2;
+        // Вот тут я должен развернуть
+        // Не полноценную реакцию,
+        // А как будто нет сейчас никакого
+        // Цикла записи и мы модифицируем только a
+        // кажется так не пойдёт.
         b.val = 1;
       }
     });
