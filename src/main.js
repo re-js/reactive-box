@@ -38,6 +38,7 @@ const digest = () => {
   write_phase = 1;
 
   try {
+    console.log('DIGEST: ', level_current);
     while (level_current) {
       let nodes = level_nodes.get(level_current);
 
@@ -70,7 +71,7 @@ const digest = () => {
       if (expr) node[0]();
       if (sel) {
         if (node[4]()) {
-          write(node);
+          write(node); // TODO: this spawns a new recording phase
           free(node, 0);
         }
       }
@@ -97,6 +98,7 @@ const write = (box_node) => {
       list.add(rel);
     });
 
+  console.log('WRITE', write_phase);
   if (write_phase) {
     digest();
     level_current = context_level;
@@ -106,13 +108,13 @@ const write = (box_node) => {
 };
 
 const transaction = () => {
-  const stack = write_phase;
-  write_phase = 1;
+  // const stack = write_phase;
+  // write_phase = 1;
 
-  return () => {
-    write_phase = stack;
-    write();
-  };
+  // return () => {
+  //   write_phase = stack;
+  //   write();
+  // };
 };
 
 const box = (value, change_listener, comparer = Object.is) => {

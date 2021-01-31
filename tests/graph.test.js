@@ -117,9 +117,12 @@ describe("Graph", () => {
 
     run(() => spy(c3.val));
     expect(spy).toHaveBeenNthCalledWith(1, 0);
+    console.log('BEFORE 1');
     a1.val = 1;
     expect(spy).toHaveBeenNthCalledWith(2, 1);
+    console.log('BEFORE 2');
     a2.val = 1;
+    console.log('AFTER 2');
     expect(spy).toHaveBeenNthCalledWith(3, 2);
     a3.val = 1;
     expect(spy).toHaveBeenNthCalledWith(4, 3);
