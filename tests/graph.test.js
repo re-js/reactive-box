@@ -19,8 +19,7 @@ describe("Graph", () => {
     const r = runer(() => {
       m.val += 1;
     });
-    expect(r).toThrow("Maximum call stack size exceeded");
-    // expect(r).toThrow("Infinity reactions loop");
+    expect(r).toThrow();
   });
 
   test("two expr with two sels and one shared and second box change in first expr", () => {
@@ -104,5 +103,27 @@ describe("Graph", () => {
     expect(spy1).toBeCalledTimes(3);
     expect(spy2).toHaveBeenNthCalledWith(2, "2-4-1"); // TODO: 2-4-0
     expect(spy2).toBeCalledTimes(2);
+  });
+
+  test("binary tree", () => {
+    const spy = jest.fn();
+    const a1 = mut(0);
+    const a2 = mut(0);
+    const a3 = mut(0);
+    const a4 = mut(0);
+    const c1 = comp(() => a1.val + a2.val);
+    const c2 = comp(() => a3.val + a4.val);
+    const c3 = comp(() => c1.val + c2.val);
+
+    run(() => spy(c3.val));
+    expect(spy).toHaveBeenNthCalledWith(1, 0);
+    a1.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(2, 1);
+    a2.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(3, 2);
+    a3.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(4, 3);
+    a4.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(5, 4);
   });
 });
