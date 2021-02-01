@@ -1,4 +1,4 @@
-const { mut, run, comp, selec, runer } = require("./lib");
+const { mut, run, comp, selec, runer, expr } = require("./lib");
 
 describe("Graph", () => {
   test("expr run only once for three deep sel", () => {
@@ -45,6 +45,30 @@ describe("Graph", () => {
     expect(spy).toHaveBeenNthCalledWith(3, 3);
   });
 
+  test("write and read selector in write phase", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const b = mut(1);
+    const s_1 = comp(() => b.val + 1);
+    const s_2 = comp(() => s_1.val + 1);
+    const s_3 = comp(() => s_2.val + 1);
+
+    const e = expr(() => {
+      if (a.val > 0) {
+        b.val = a.val + 1;
+        spy(s_3.val);
+      }
+    });
+    e[0]();
+
+    expect(s_3.val).toBe(4);
+
+    a.val = 1;
+
+    expect(spy).toHaveBeenNthCalledWith(1, 5);
+    expect(spy).toBeCalledTimes(1);
+  });
+
   test("deep struct with modify", () => {
     const spy1 = jest.fn();
     const spy2 = jest.fn();
@@ -54,6 +78,7 @@ describe("Graph", () => {
     const n1 = comp(() => a.val + 1);
     const n2 = comp(() => n1.val + 1);
     const r1 = comp(() => a.val + "-" + n2.val);
+
     run(() => {
       spy1(r1.val);
       if (a.val === 1) {
@@ -61,7 +86,9 @@ describe("Graph", () => {
         b.val = 1;
       }
     });
-    const r2 = comp(() => r1.val + "-" + b.val);
+    const r2 = comp(() => {
+      return r1.val + "-" + b.val;
+    });
     run(() => {
       spy2(r2.val);
     });
@@ -78,5 +105,27 @@ describe("Graph", () => {
     expect(spy1).toBeCalledTimes(3);
     expect(spy2).toHaveBeenNthCalledWith(2, "2-4-1");
     expect(spy2).toBeCalledTimes(2);
+  });
+
+  test("binary tree", () => {
+    const spy = jest.fn();
+    const a1 = mut(0);
+    const a2 = mut(0);
+    const a3 = mut(0);
+    const a4 = mut(0);
+    const c1 = comp(() => a1.val + a2.val);
+    const c2 = comp(() => a3.val + a4.val);
+    const c3 = comp(() => c1.val + c2.val);
+
+    run(() => spy(c3.val));
+    expect(spy).toHaveBeenNthCalledWith(1, 0);
+    a1.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(2, 1);
+    a2.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(3, 2);
+    a3.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(4, 3);
+    a4.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(5, 4);
   });
 });

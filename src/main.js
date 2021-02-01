@@ -6,11 +6,10 @@
  * 4: (recalc for sel)
  */
 let context_node;
-let write_phase;
-let level_nodes = new Map();
-let level_current = 0;
-let write_called;
-let writable_selectors = new Set();
+let level_nodes;
+let stack_nodes = new Map();
+let level_current;
+let transaction_nodes;
 
 // node: sel or expr node
 // type: 0 - rels, 1 - deps
@@ -35,90 +34,102 @@ const calculate_level = (node) => {
   }
 };
 
-const write = (box_node) => {
-  box_node &&
-    box_node[0].forEach((rel) => {
-      let level = rel[2];
-      let list = level_nodes.get(level);
-      !list && level_nodes.set(level, (list = new Set()));
-
-      if (!level_current || level_current > level) level_current = level;
-
-      list.add(rel);
-    });
-
-  if (!write_phase) {
-    write_phase = 1;
-
-    try {
-      let limit = 100000;
-
-      while (level_current) {
-        const nodes = level_nodes.get(level_current);
-
-        const iter = nodes.values();
-        let node, lev;
-
-        while ((node = iter.next().value)) {
-          lev = level_current;
-
-          let expr, sel;
-
-          if (node.length === 3) expr = 1;
-          else {
-            if (node[0].size) sel = 1;
-            else if (writable_selectors.has(node)) {
-              writable_selectors.delete(node);
-              sel = 1;
-            } else node[3] = 0;
-          }
-
-          free(node, 1);
-          nodes.delete(node);
-
-          if (expr) node[0]();
-          if (sel) {
-            write_called = 0;
-            const changed = node[4]();
-            if (write_called) writable_selectors.add(node);
-            if (changed) {
-              write(node);
-              free(node, 0);
-            }
-          }
-
-          if (!nodes.size && lev === level_current) {
-            level_current = 0;
-            level_nodes.forEach(
-              (list, level) =>
-                list.size &&
-                (!level_current || level_current > level) &&
-                (level_current = level)
-            );
-            break;
-          }
-
-          if (level_current < lev) break;
-          if (!--limit) throw new Error("Infinity reactions loop");
-        }
-      }
-    } finally {
-      write_phase = 0;
-      level_nodes.clear();
-      level_current = 0;
-      writable_selectors.clear();
+const node_expand = (node) =>
+  node[0].forEach((rel) => {
+    const stack_node_h = stack_nodes.get(rel);
+    if (stack_node_h) {
+      if (stack_node_h[0]) stack_node_h[1] = 1;
+      return;
     }
+    stack_nodes.set(rel, [0, 0]);
+
+    let level = rel[2];
+    let list = level_nodes.get(level);
+    !list && level_nodes.set(level, (list = new Set()));
+
+    if (!level_current || level_current > level) level_current = level;
+
+    list.add(rel);
+  });
+
+const write = (box_node, set_of) => {
+  if (transaction_nodes)
+    return set_of
+      ? box_node.forEach(transaction_nodes.add.bind(transaction_nodes))
+      : transaction_nodes.add(box_node);
+
+  const stack_level_current = level_current;
+  const stack_level_nodes = level_nodes;
+
+  level_current = 0;
+  level_nodes = new Map();
+
+  set_of ? box_node.forEach(node_expand) : node_expand(box_node);
+
+  try {
+    let limit = 1000000;
+
+    while (level_current) {
+      let nodes = level_nodes.get(level_current);
+
+      if (!nodes.size) {
+        level_current = 0;
+        level_nodes.forEach(
+          (list, level) =>
+            list.size &&
+            (!level_current || level_current > level) &&
+            (level_current = level)
+        );
+      }
+      if (!level_current) break;
+      nodes = level_nodes.get(level_current);
+
+      const iter = nodes.values();
+      const node = iter.next().value;
+
+      const stack_node_h = stack_nodes.get(node);
+      stack_node_h[0] = 1;
+
+      do {
+        stack_node_h[1] = 0;
+        let expr, sel;
+
+        if (node.length === 3) expr = 1;
+        else {
+          if (node[0].size) sel = 1;
+          else node[3] = 0;
+        }
+
+        free(node, 1);
+        nodes.delete(node);
+
+        if (expr) node[0]();
+        if (sel) {
+          if (node[4]()) {
+            node_expand(node);
+            free(node, 0);
+          }
+        }
+
+        if (!--limit) throw new Error("Infinity reactions loop");
+      } while (stack_node_h[1]);
+
+      stack_nodes.delete(node);
+    }
+  } finally {
+    level_current = stack_level_current;
+    level_nodes = stack_level_nodes;
   }
-  write_called = 1;
 };
 
 const transaction = () => {
-  const stack = write_phase;
-  write_phase = 1;
+  const stack = transaction_nodes;
+  transaction_nodes = new Set();
 
   return () => {
-    write_phase = stack;
-    write();
+    const nodes = transaction_nodes;
+    transaction_nodes = stack;
+    nodes.size && write(nodes, 1);
   };
 };
 
