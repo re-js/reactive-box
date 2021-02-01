@@ -9,6 +9,7 @@ let context_node;
 let write_phase;
 let level_nodes = new Map();
 let level_current = 0;
+let no_digest = 0;
 
 // node: sel or expr node
 // type: 0 - rels, 1 - deps
@@ -70,7 +71,10 @@ const digest = () => {
       if (expr) node[0]();
       if (sel) {
         if (node[4]()) {
-          write(node, 0);
+          const stack = no_digest;
+          no_digest = 1;
+          write(node);
+          no_digest = stack;
           free(node, 0);
         }
       }
@@ -84,7 +88,7 @@ const digest = () => {
   }
 };
 
-const write = (box_node, run_digest = 1) => {
+const write = (box_node) => {
   const context_level = level_current;
   box_node &&
     box_node[0].forEach((rel) => {
@@ -97,7 +101,7 @@ const write = (box_node, run_digest = 1) => {
       list.add(rel);
     });
 
-  if (!run_digest) return;
+  if (no_digest) return;
 
   if (write_phase) {
     digest();
@@ -108,13 +112,13 @@ const write = (box_node, run_digest = 1) => {
 };
 
 const transaction = () => {
-  // const stack = write_phase;
-  // write_phase = 1;
+  const stack = no_digest;
+  no_digest = 1;
 
-  // return () => {
-  //   write_phase = stack;
-  //   write();
-  // };
+  return () => {
+    no_digest = stack;
+    write();
+  };
 };
 
 const box = (value, change_listener, comparer = Object.is) => {
