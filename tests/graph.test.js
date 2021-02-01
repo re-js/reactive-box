@@ -19,7 +19,7 @@ describe("Graph", () => {
     const r = runer(() => {
       m.val += 1;
     });
-    expect(r).toThrow();
+    expect(r).toThrow("Infinity reactions loop");
   });
 
   test("two expr with two sels and one shared and second box change in first expr", () => {
@@ -82,13 +82,36 @@ describe("Graph", () => {
     run(() => {
       spy1(r1.val);
       if (a.val === 1) {
+        console.log('a.val = 2');
         a.val = 2;
+        console.log('b.val = 1');
         b.val = 1;
       }
     });
-    const r2 = comp(() => r1.val + "-" + b.val);
+    const r2 = comp(() => {
+      // Мне нельзя запускать выражения
+      // зависмые от обновлённых вершин порождённых прошлыми модификациями.
+      // т.е. если выражение обнаруживает, что в зависимых есть
+      // выражения из стека записей, то откладываем на их очередь.
+
+      // грубо говоря, если нода уже есть в стеке на обработку
+      // созданным прошлыми записями, то её снова добавлять не нужно.
+
+      // Значит в стеке должна храниться коллекция всех нод, которые
+      // доступны к обработке на данном цикле и которые недоступны.
+
+      // Крутяк! Должно сработать)
+
+
+      const t = r1.val + "-" + b.val;
+      console.log('r2 comp', t);
+      return t;
+      // return r1.val + "-" + b.val;
+    });
     run(() => {
-      spy2(r2.val);
+      const v = r2.val;
+      console.log('spy2', v);
+      spy2(v);
     });
 
     expect(spy1).toHaveBeenNthCalledWith(1, "0-2");
