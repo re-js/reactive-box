@@ -82,36 +82,15 @@ describe("Graph", () => {
     run(() => {
       spy1(r1.val);
       if (a.val === 1) {
-        console.log('a.val = 2');
         a.val = 2;
-        console.log('b.val = 1');
         b.val = 1;
       }
     });
     const r2 = comp(() => {
-      // Мне нельзя запускать выражения
-      // зависмые от обновлённых вершин порождённых прошлыми модификациями.
-      // т.е. если выражение обнаруживает, что в зависимых есть
-      // выражения из стека записей, то откладываем на их очередь.
-
-      // грубо говоря, если нода уже есть в стеке на обработку
-      // созданным прошлыми записями, то её снова добавлять не нужно.
-
-      // Значит в стеке должна храниться коллекция всех нод, которые
-      // доступны к обработке на данном цикле и которые недоступны.
-
-      // Крутяк! Должно сработать)
-
-
-      const t = r1.val + "-" + b.val;
-      console.log('r2 comp', t);
-      return t;
-      // return r1.val + "-" + b.val;
+      return r1.val + "-" + b.val;
     });
     run(() => {
-      const v = r2.val;
-      console.log('spy2', v);
-      spy2(v);
+      spy2(r2.val);
     });
 
     expect(spy1).toHaveBeenNthCalledWith(1, "0-2");
@@ -124,7 +103,7 @@ describe("Graph", () => {
     expect(spy1).toHaveBeenNthCalledWith(2, "1-3");
     expect(spy1).toHaveBeenNthCalledWith(3, "2-4");
     expect(spy1).toBeCalledTimes(3);
-    expect(spy2).toHaveBeenNthCalledWith(2, "2-4-1"); // TODO: 2-4-0
+    expect(spy2).toHaveBeenNthCalledWith(2, "2-4-1");
     expect(spy2).toBeCalledTimes(2);
   });
 
@@ -140,12 +119,9 @@ describe("Graph", () => {
 
     run(() => spy(c3.val));
     expect(spy).toHaveBeenNthCalledWith(1, 0);
-    console.log('BEFORE 1');
     a1.val = 1;
     expect(spy).toHaveBeenNthCalledWith(2, 1);
-    console.log('BEFORE 2');
     a2.val = 1;
-    console.log('AFTER 2');
     expect(spy).toHaveBeenNthCalledWith(3, 2);
     a3.val = 1;
     expect(spy).toHaveBeenNthCalledWith(4, 3);
