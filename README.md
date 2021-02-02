@@ -72,7 +72,7 @@ And the last one is a reaction subscriber. It provides the possibility to subscr
 
 - It runs calculations synchronously.
 
-- It's designed to make [dirty reads](https://en.wikipedia.org/wiki/Isolation_%28database_systems%29#Dirty_reads) impossible - your reactions will only be called when there is a consistent state for them to run on ([algorithm](https://medium.com/hackernoon/becoming-fully-reactive-an-in-depth-explanation-of-mobservable-55995262a254#71b1)). _It's the solution for dependency tracking and the diamond problem._
+- It's designed to make [dirty reads](https://en.wikipedia.org/wiki/Isolation_%28database_systems%29#Dirty_reads) impossible - your reactions will only be called when there is a consistent state for them to run on ([similar algorithm](https://medium.com/hackernoon/becoming-fully-reactive-an-in-depth-explanation-of-mobservable-55995262a254#71b1)). _It's the solution for dependency tracking and the diamond problem._
 
 ### In the real world
 
