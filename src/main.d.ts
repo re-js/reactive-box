@@ -16,5 +16,6 @@ declare function expr<T extends (...args: any[]) => any>(
 ): [T, () => void];
 
 declare function transaction(): () => void;
+declare function untrack(): () => void;
 
-export { box, sel, expr, transaction };
+export { box, sel, expr, transaction, untrack };

@@ -6,6 +6,7 @@
  * 4: (recalc for sel)
  */
 let context_node;
+let context_untrack;
 let level_nodes;
 let stack_nodes = new Map();
 let level_current;
@@ -20,7 +21,7 @@ const free = (node, type) => {
 
 // node: box or sel node
 const read = (node) => {
-  if (context_node) {
+  if (context_node && !context_untrack) {
     context_node[1].add(node);
     node[0].add(context_node);
   }
@@ -133,6 +134,12 @@ const transaction = () => {
   };
 };
 
+const untrack = () => {
+  const stack = context_untrack;
+  context_untrack = 1;
+  return () => (context_untrack = stack);
+};
+
 const box = (value, change_listener, comparer = Object.is) => {
   // rels, _, level
   const box_node = [new Set(), 0, 0];
@@ -161,12 +168,15 @@ const sel = (body, comparer = Object.is) => {
   let last_context;
   const run = () => {
     const stack_context_node = context_node;
+    const stack_untrack = context_untrack;
+
     context_node = sel_node;
     context_node[2] = 0; // clear level
     try {
       return body.call(last_context);
     } finally {
       context_node = stack_context_node;
+      context_untrack = stack_untrack;
     }
   };
   // rels, deps, level, is_cached, checker
@@ -213,6 +223,7 @@ const expr = (body, sync) => {
   function run() {
     let result;
     const stack = context_node;
+    const stack_untrack = context_untrack;
 
     expr_node[1].size && free(expr_node, 1);
     context_node = expr_node;
@@ -221,6 +232,7 @@ const expr = (body, sync) => {
       result = body.apply((last_context = this), arguments);
     } finally {
       context_node = stack;
+      context_untrack = stack_untrack;
     }
     return result;
   }
@@ -234,4 +246,4 @@ const expr = (body, sync) => {
   ];
 };
 
-module.exports = { box, sel, expr, transaction };
+module.exports = { box, sel, expr, transaction, untrack };
