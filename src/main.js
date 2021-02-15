@@ -169,6 +169,7 @@ const sel = (body, comparer = Object.is) => {
   const run = () => {
     const stack_context_node = context_node;
     const stack_untrack = context_untrack;
+    context_untrack = 0;
 
     context_node = sel_node;
     context_node[2] = 0; // clear level
@@ -224,6 +225,7 @@ const expr = (body, sync) => {
     let result;
     const stack = context_node;
     const stack_untrack = context_untrack;
+    context_untrack = 0;
 
     expr_node[1].size && free(expr_node, 1);
     context_node = expr_node;
