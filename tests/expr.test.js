@@ -1,4 +1,4 @@
-const { mut, runer, expr } = require("./lib");
+const { mut, runer, expr, run } = require("./lib");
 
 describe("Expr", () => {
   test("(sync on each box change with one box) and (expr return value)", () => {
@@ -75,5 +75,24 @@ describe("Expr", () => {
     expect(spy).toHaveBeenLastCalledWith(["b"], 1);
     a.val = 0;
     expect(spy).toHaveBeenLastCalledWith(["b"], 0);
+  });
+
+  test("stop should work correctly in another expr", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+
+    run(
+      () => a.val,
+      () => s2()
+    );
+    const [r2, s2] = expr(() => a.val, spy);
+    r2();
+    run(
+      () => a.val,
+      () => s2()
+    );
+
+    a.val = 1;
+    expect(spy).toBeCalledTimes(0);
   });
 });

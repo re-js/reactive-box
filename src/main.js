@@ -42,7 +42,8 @@ const node_expand = (node) =>
       if (stack_node_h[0]) stack_node_h[1] = 1;
       return;
     }
-    stack_nodes.set(rel, [0, 0]);
+    // [<now_in_execution>, <marked_for_recalc>, <is_stopped>]
+    stack_nodes.set(rel, [0, 0, 0]);
 
     let level = rel[2];
     let list = level_nodes.get(level);
@@ -91,29 +92,31 @@ const write = (box_node, set_of) => {
       const stack_node_h = stack_nodes.get(node);
       stack_node_h[0] = 1;
 
-      do {
-        stack_node_h[1] = 0;
-        let expr, sel;
+      if (stack_node_h[2]) nodes.delete(node);
+      else
+        do {
+          stack_node_h[1] = 0;
+          let expr, sel;
 
-        if (node.length === 3) expr = 1;
-        else {
-          if (node[0].size) sel = 1;
-          else node[3] = 0;
-        }
-
-        free(node, 1);
-        nodes.delete(node);
-
-        if (expr) node[0]();
-        if (sel) {
-          if (node[4]()) {
-            node_expand(node);
-            free(node, 0);
+          if (node.length === 3) expr = 1;
+          else {
+            if (node[0].size) sel = 1;
+            else node[3] = 0;
           }
-        }
 
-        if (!--limit) throw new Error("Infinity reactions loop");
-      } while (stack_node_h[1]);
+          free(node, 1);
+          nodes.delete(node);
+
+          if (expr) node[0]();
+          if (sel) {
+            if (node[4]()) {
+              node_expand(node);
+              free(node, 0);
+            }
+          }
+
+          if (!--limit) throw new Error("Infinity reactions loop");
+        } while (stack_node_h[1] && !stack_node_h[2]);
 
       stack_nodes.delete(node);
     }
@@ -210,6 +213,7 @@ const sel = (body, comparer = Object.is) => {
       free(sel_node, 0);
       sel_node[3] = cache = 0;
       last_context = null;
+      stack_nodes.has(sel_node) && (stack_nodes.get(sel_node)[2] = 1);
     },
   ];
 };
@@ -244,6 +248,7 @@ const expr = (body, sync) => {
     () => {
       free(expr_node, 1);
       last_context = null;
+      stack_nodes.has(expr_node) && (stack_nodes.get(expr_node)[2] = 1);
     },
   ];
 };
