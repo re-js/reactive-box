@@ -95,4 +95,47 @@ describe("Expr", () => {
     a.val = 1;
     expect(spy).toBeCalledTimes(0);
   });
+
+  test("stop should work correctly in self", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+
+    const [r1, s1] = expr(() => {
+      if (a.val) {
+        s1();
+      }
+      spy(a.val);
+    });
+    r1();
+    expect(spy).toBeCalledTimes(1);
+    a.val = 1;
+    expect(spy).toBeCalledTimes(2);
+
+    a.val = 0;
+    expect(spy).toBeCalledTimes(2);
+  });
+
+  test("stop and run again should work correctly in self", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+
+    const [r1, s1] = expr(() => {
+      spy(a.val);
+      if (a.val === 1) {
+        s1();
+        a.val = 0;
+        r1();
+      }
+    });
+    r1();
+    expect(spy).toBeCalledTimes(1);
+    a.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(2, 1);
+    expect(spy).toHaveBeenNthCalledWith(3, 0);
+    expect(spy).toBeCalledTimes(3);
+    expect(a.val).toBe(0);
+    a.val = 2;
+    expect(spy).toBeCalledTimes(4);
+    expect(spy).toHaveBeenNthCalledWith(4, 2);
+  });
 });

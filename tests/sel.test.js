@@ -1,4 +1,4 @@
-const { mut, selec, sel, comp, run, runer } = require("./lib");
+const { mut, selec, sel, comp, run, runer, expr } = require("./lib");
 
 describe("Sel", () => {
   test("sel run only once on each box change with one box", () => {
@@ -180,5 +180,60 @@ describe("Sel", () => {
     expect(spy).toHaveBeenNthCalledWith(1, 20, 2);
     expect(spy).toHaveBeenNthCalledWith(2, 10, 2);
     expect(spy).toBeCalledTimes(2);
+  });
+
+  test("stop should work correctly in self", () => {
+    const spy = jest.fn();
+    const spy_2 = jest.fn();
+    const a = mut(0);
+
+    const [r1, s1] = sel(() => {
+      if (a.val) {
+        s1();
+      }
+      spy(a.val);
+      return a.val;
+    });
+
+    run(() => spy_2(r1()));
+
+    expect(spy).toBeCalledTimes(1);
+    a.val = 1;
+    expect(spy).toBeCalledTimes(2);
+    expect(spy_2).toHaveBeenNthCalledWith(1, 0);
+
+    a.val = 0;
+    expect(spy).toBeCalledTimes(2);
+    expect(spy_2).toBeCalledTimes(1);
+  });
+
+  test("stop and run again should work correctly in self", () => {
+    const spy = jest.fn();
+    const spy_2 = jest.fn();
+    const a = mut(0);
+
+    const [r1, s1] = sel(() => {
+      spy(a.val);
+      if (a.val === 1) {
+        s1();
+        a.val = 0;
+        r1();
+      }
+      return a.val;
+    });
+    run(() => spy_2(r1()));
+
+    expect(spy).toBeCalledTimes(1);
+    a.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(2, 1);
+    expect(spy).toHaveBeenNthCalledWith(3, 0);
+    expect(spy).toBeCalledTimes(3);
+    expect(a.val).toBe(0);
+    expect(spy_2).toHaveBeenNthCalledWith(1, 0);
+
+    a.val = 2;
+    expect(spy).toBeCalledTimes(4);
+    expect(spy).toHaveBeenNthCalledWith(4, 2);
+    expect(spy_2).toBeCalledTimes(1);
   });
 });

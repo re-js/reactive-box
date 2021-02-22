@@ -114,9 +114,13 @@ const write = (box_node, set_of) => {
               free(node, 0);
             }
           }
-
+          if (stack_node_h[2]) {
+            free(node, 1);
+            sel && free(node, 0);
+            break;
+          }
           if (!--limit) throw new Error("Infinity reactions loop");
-        } while (stack_node_h[1] && !stack_node_h[2]);
+        } while (stack_node_h[1]);
 
       stack_nodes.delete(node);
     }
@@ -174,6 +178,9 @@ const sel = (body, comparer = Object.is) => {
     const stack_untrack = context_untrack;
     context_untrack = 0;
 
+    const h = stack_nodes.get(sel_node);
+    if (h && h[2]) h[2] = 0;
+
     context_node = sel_node;
     context_node[2] = 0; // clear level
     try {
@@ -230,6 +237,9 @@ const expr = (body, sync) => {
     const stack = context_node;
     const stack_untrack = context_untrack;
     context_untrack = 0;
+
+    const h = stack_nodes.get(expr_node);
+    if (h && h[2]) h[2] = 0;
 
     expr_node[1].size && free(expr_node, 1);
     context_node = expr_node;
