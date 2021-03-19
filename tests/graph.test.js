@@ -14,12 +14,21 @@ describe("Graph", () => {
     expect(spy).toBeCalledTimes(1);
   });
 
-  test("infinity loop error for read and write updates", () => {
+  test("infinity loop error for expr cycle", () => {
     const m = mut(0);
     const r = runer(() => {
       m.val += 1;
     });
     expect(r).toThrow("Infinity reactions loop");
+  });
+
+  test("infinity loop error for write updates", () => {
+    const m = mut(0);
+    const b = mut(0);
+    run(() => {
+      if (b.val) m.val += 1;
+    });
+    expect(() => ++b.val).toThrow("Infinity reactions loop");
   });
 
   test("two expr with two sels and one shared and second box change in first expr", () => {
