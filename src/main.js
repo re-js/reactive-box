@@ -58,7 +58,7 @@ const node_expand = (node) =>
 
 const throw_infinity_reactions = () => {
   throw new Error("Infinity reactions loop");
-}
+};
 
 const write = (box_node, set_of) => {
   if (transaction_nodes)
@@ -253,9 +253,8 @@ const expr = (body, sync) => {
     let is_entry;
     // [<now_in_execution>, <marked_for_recalc>, <is_stopped>]
     if (!h) {
-      stack_nodes.set(expr_node, is_entry = h = [1, 0, 0]);
-    }
-    else if (h[2]) h[2] = 0;
+      stack_nodes.set(expr_node, (is_entry = h = [1, 0, 0]));
+    } else if (h[2]) h[2] = 0;
 
     try {
       if (is_entry) {
