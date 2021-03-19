@@ -12,6 +12,8 @@ let stack_nodes = new Map();
 let level_current;
 let transaction_nodes;
 
+const reactions_loop_limit = 1000000;
+
 // node: sel or expr node
 // type: 0 - rels, 1 - deps
 const free = (node, type) => {
@@ -54,6 +56,10 @@ const node_expand = (node) =>
     list.add(rel);
   });
 
+const throw_infinity_reactions = () => {
+  throw new Error("Infinity reactions loop");
+}
+
 const write = (box_node, set_of) => {
   if (transaction_nodes)
     return set_of
@@ -69,7 +75,7 @@ const write = (box_node, set_of) => {
   set_of ? box_node.forEach(node_expand) : node_expand(box_node);
 
   try {
-    let limit = 1000000;
+    let limit = reactions_loop_limit;
 
     while (level_current) {
       let nodes = level_nodes.get(level_current);
@@ -119,7 +125,7 @@ const write = (box_node, set_of) => {
             sel && free(node, 0);
             break;
           }
-          if (!--limit) throw new Error("Infinity reactions loop");
+          if (!--limit) throw_infinity_reactions();
         } while (stack_node_h[1]);
 
       stack_nodes.delete(node);
@@ -233,19 +239,39 @@ const expr = (body, sync) => {
   const expr_node = [sync, new Set(), 0];
 
   function run() {
+    const body_run = () => body.apply((last_context = this), arguments);
+
     let result;
     const stack = context_node;
     const stack_untrack = context_untrack;
     context_untrack = 0;
 
-    const h = stack_nodes.get(expr_node);
-    if (h && h[2]) h[2] = 0;
-
-    expr_node[1].size && free(expr_node, 1);
     context_node = expr_node;
     context_node[2] = 0; // clear level
+
+    let h = stack_nodes.get(expr_node);
+    let is_entry;
+    // [<now_in_execution>, <marked_for_recalc>, <is_stopped>]
+    if (!h) {
+      stack_nodes.set(expr_node, is_entry = h = [1, 0, 0]);
+    }
+    else if (h[2]) h[2] = 0;
+
     try {
-      result = body.apply((last_context = this), arguments);
+      if (is_entry) {
+        let limit = reactions_loop_limit;
+        do {
+          expr_node[1].size && free(expr_node, 1);
+          h[1] = 0;
+          result = body_run();
+          if (!--limit) throw_infinity_reactions();
+        } while (h[1] && !h[2]);
+
+        stack_nodes.delete(expr_node);
+        h[2] && free(expr_node, 1);
+      } else {
+        result = body_run();
+      }
     } finally {
       context_node = stack;
       context_untrack = stack_untrack;

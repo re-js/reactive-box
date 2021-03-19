@@ -138,4 +138,29 @@ describe("Expr", () => {
     expect(spy).toBeCalledTimes(4);
     expect(spy).toHaveBeenNthCalledWith(4, 2);
   });
+
+  test("stop in first iteration", () => {
+    const spy = jest.fn();
+    const spy_2 = jest.fn();
+    const b = mut(1);
+
+    const body = () => {
+      b.val += b.val;
+      b.val += b.val;
+      b.val += b.val;
+      s();
+      spy_2();
+    };
+    run(() => spy(b.val));
+
+    const [r, s] = expr(body);
+    r();
+
+    expect(spy_2).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenNthCalledWith(1, 1);
+    expect(spy).toHaveBeenNthCalledWith(2, 2);
+    expect(spy).toHaveBeenNthCalledWith(3, 4);
+    expect(spy).toHaveBeenNthCalledWith(4, 8);
+    expect(spy).toHaveBeenCalledTimes(4);
+  });
 });

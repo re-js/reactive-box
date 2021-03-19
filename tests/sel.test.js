@@ -177,8 +177,8 @@ describe("Sel", () => {
       spy(m, v);
     });
 
-    expect(spy).toHaveBeenNthCalledWith(1, 20, 2);
-    expect(spy).toHaveBeenNthCalledWith(2, 10, 2);
+    expect(spy).toHaveBeenNthCalledWith(1, 10, 1);
+    expect(spy).toHaveBeenNthCalledWith(2, 20, 2);
     expect(spy).toBeCalledTimes(2);
   });
 
