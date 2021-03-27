@@ -1,8 +1,8 @@
 declare function box<T>(
   initialValue?: T,
-  onChange?: (currentValue?: T, previousValue?: T) => void,
+  onChange?: (currentValue: T, previousValue: T) => void,
   comparer?: (value: T, nextValue: T) => boolean
-): [() => T, (nextValue?: T) => void];
+): [() => T, (nextValue: T) => void];
 
 declare function sel<T extends () => any>(
   body: T,
