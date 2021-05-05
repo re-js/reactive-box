@@ -20,6 +20,24 @@ describe("Sel", () => {
     expect(spy).toBeCalledTimes(2);
   });
 
+  test("sel run only once on leave and comback to graph", () => {
+    const spy = jest.fn();
+    const a = mut(1);
+    const s = selec(() => (spy(a.val), a.val));
+    const b = mut(0);
+    run(() => {
+      if (b.val === 0) s();
+    });
+
+    expect(spy).toBeCalledTimes(1);
+    expect(spy).toHaveBeenLastCalledWith(1);
+    expect(s()).toBe(1);
+    b.val = 1;
+    b.val = 0;
+    expect(s()).toBe(1);
+    expect(spy).toBeCalledTimes(1);
+  });
+
   test("should work custom comparer", () => {
     const spy = jest.fn();
     const a = mut(0);

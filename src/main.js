@@ -60,9 +60,9 @@ const throw_infinity_reactions = () => {
   throw new Error("Infinity reactions loop");
 };
 
-const write = (box_node, set_of) => {
+const write = (box_node, is_array) => {
   if (transaction_nodes)
-    return set_of
+    return is_array
       ? box_node.forEach(transaction_nodes.add.bind(transaction_nodes))
       : transaction_nodes.add(box_node);
 
@@ -72,7 +72,7 @@ const write = (box_node, set_of) => {
   level_current = 0;
   level_nodes = new Map();
 
-  set_of ? box_node.forEach(node_expand) : node_expand(box_node);
+  is_array ? box_node.forEach(node_expand) : node_expand(box_node);
 
   try {
     let limit = reactions_loop_limit;
