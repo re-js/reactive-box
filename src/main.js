@@ -13,6 +13,8 @@ let level_current;
 let transaction_nodes;
 
 const reactions_loop_limit = 1000000;
+const stop_signal = {};
+
 
 // node: sel or expr node
 // type: 0 - rels, 1 - deps
@@ -153,14 +155,14 @@ const untrack = () => {
   return () => (context_untrack = stack);
 };
 
-const box = (value, change_listener, comparer = Object.is) => {
+const box = (value, change_listener, is_equals = Object.is) => {
   // rels, _, level
   const box_node = [new Set(), 0, 0];
   return [
     () => (read(box_node), calculate_level(box_node), value),
     change_listener
       ? (next_value) => {
-          if (!comparer(value, next_value)) {
+          if (!is_equals(value, next_value)) {
             const prev_value = value;
             value = next_value;
             write(box_node);
@@ -168,7 +170,7 @@ const box = (value, change_listener, comparer = Object.is) => {
           }
         }
       : (next_value) => {
-          if (!comparer(value, next_value)) {
+          if (!is_equals(value, next_value)) {
             value = next_value;
             write(box_node);
           }
@@ -176,7 +178,7 @@ const box = (value, change_listener, comparer = Object.is) => {
   ];
 };
 
-const sel = (body, comparer = Object.is) => {
+const sel = (body, is_equals = Object.is) => {
   let cache;
   let last_context;
   const run = () => {
@@ -204,7 +206,7 @@ const sel = (body, comparer = Object.is) => {
     0,
     () => {
       let next = run();
-      return !sel_node[3] || comparer(cache, next)
+      return !sel_node[3] || is_equals(cache, next)
         ? false
         : ((cache = next), true);
     },
@@ -287,5 +289,65 @@ const expr = (body, sync) => {
     },
   ];
 };
+
+// flow((stop?, resolve?, prev_value?) => {}, empty_value?, compare_fn?);
+const flow = (fn, empty_value, is_equals = Object.is) => {
+  let value = empty_value;
+
+  const resolve = (next_value) => {
+    if (!is_equals(value, next_value)) {
+      value = next_value;
+      write(flow_node);
+    }
+  }
+  const run = () => {
+    const stack_context_node = context_node;
+    const stack_untrack = context_untrack;
+    context_untrack = 0;
+
+    const h = stack_nodes.get(flow_node);
+    if (h && h[2]) h[2] = 0;
+
+    context_node = flow_node;
+    context_node[2] = 0; // clear level
+    try {
+      return fn(stop_signal, resolve, value);
+    } finally {
+      context_node = stack_context_node;
+      context_untrack = stack_untrack;
+    }
+  };
+
+
+  // rels, deps, level, fn
+  const flow_node = [
+    new Set(),
+    new Set(),
+    0,
+    () => {
+      let next = run();
+      return next === stop_signal || is_equals(value, next)
+        ? false
+        : ((value = next), true);
+    },
+  ];
+
+  return [
+    () => {
+      read(flow_node);
+      calculate_level(flow_node);
+      return value;
+    },
+    () => {
+      free(expr_node, 1);
+      free(sel_node, 0);
+      value = 0;
+      stack_nodes.has(expr_node) && (stack_nodes.get(expr_node)[2] = 1);
+    },
+  ];
+}
+
+
+
 
 module.exports = { box, sel, expr, transaction, untrack };
