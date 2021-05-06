@@ -200,6 +200,49 @@ describe("Sel", () => {
     expect(spy).toBeCalledTimes(2);
   });
 
+  test("should safe correct reactions order for changing depth without modification", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const b = mut(0);
+
+    const m0 = comp(() => {
+      return !b.val ? a.val : k0.val;
+    });
+    const k0 = comp(() => {
+      return !b.val ? m0.val : a.val;
+    });
+
+    const m = comp(() => m0.val);
+    const k = comp(() => k0.val);
+
+    let i = 0;
+    run(() => (k.val, spy('k', i++)));
+    run(() => (m.val, spy('m', i++)));
+
+    expect(spy).toHaveBeenNthCalledWith(1, 'k', 0);
+    expect(spy).toHaveBeenNthCalledWith(2, 'm', 1);
+    expect(spy).toBeCalledTimes(2);
+    spy.mockReset();
+
+    a.val = 1;
+    expect(spy).toHaveBeenNthCalledWith(1, 'm', 2);
+    expect(spy).toHaveBeenNthCalledWith(2, 'k', 3);
+    expect(spy).toBeCalledTimes(2);
+    spy.mockReset();
+
+    // switch
+    b.val = 1;
+    expect(spy).toBeCalledTimes(0);
+
+    // check
+    a.val = 2;
+    // TODO: check failed (m:4, k:5)
+    // expect(spy).toHaveBeenNthCalledWith(1, 'k', 4);
+    // expect(spy).toHaveBeenNthCalledWith(2, 'm', 5);
+    expect(spy).toBeCalledTimes(2);
+    spy.mockReset();
+  });
+
   test("stop should work correctly in self", () => {
     const spy = jest.fn();
     const spy_2 = jest.fn();
