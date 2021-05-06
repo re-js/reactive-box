@@ -243,7 +243,6 @@ const expr = (body, sync) => {
   function run() {
     const body_run = () => body.apply((last_context = this), arguments);
 
-    let result;
     const stack = context_node;
     const stack_untrack = context_untrack;
     context_untrack = 0;
@@ -251,6 +250,7 @@ const expr = (body, sync) => {
     context_node = expr_node;
     context_node[2] = 0; // clear level
 
+    let result;
     let h = stack_nodes.get(expr_node);
     let is_entry;
     // [<now_in_execution>, <marked_for_recalc>, <is_stopped>]
@@ -305,13 +305,47 @@ const flow = (fn, empty_value, is_equals = Object.is) => {
     const stack_untrack = context_untrack;
     context_untrack = 0;
 
+    // let result;
+    // let h = stack_nodes.get(flow_node);
+    // let is_entry;
+    // // [<now_in_execution>, <marked_for_recalc>, <is_stopped>]
+    // if (!h) {
+    //   stack_nodes.set(flow_node, (is_entry = h = [1, 0, 0]));
+    // } else if (h[2]) h[2] = 0;
+
+    // try {
+    //   if (is_entry) {
+    //     let limit = reactions_loop_limit;
+    //     do {
+    //       flow_node[1].size && free(flow_node, 1);
+    //       h[1] = 0;
+    //       result = body_run();
+    //       if (!--limit) throw_infinity_reactions();
+    //     } while (h[1] && !h[2]);
+
+    //     stack_nodes.delete(flow_node);
+    //     h[2] && free(flow_node, 1);
+    //   } else {
+    //     result = body_run();
+    //   }
+    // } finally {
+    //   context_node = stack;
+    //   context_untrack = stack_untrack;
+    // }
+
+
+
     const h = stack_nodes.get(flow_node);
     if (h && h[2]) h[2] = 0;
 
     context_node = flow_node;
     context_node[2] = 0; // clear level
     try {
-      return fn(stop_signal, resolve, value);
+
+      const ret = fn(stop_signal, resolve, value);
+
+      // TODO: What about stop?
+      return ret;
     } finally {
       context_node = stack_context_node;
       context_untrack = stack_untrack;
