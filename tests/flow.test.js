@@ -14,6 +14,8 @@ describe("Flow", () => {
     })
     // end flow section
 
+    // TODO: Whats happends with order of execution if will change depth but not a value?
+
     run(() => {
       spy(b.val, a.val);
     });
