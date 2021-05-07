@@ -1,33 +1,36 @@
-const { mut, run } = require("./lib");
+const { mut, run, compflow } = require("./lib");
 
 describe("Flow", () => {
-  test("should work flow", () => {
+  test("should work flow deps", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const b = compflow(() => a.val);
+    run(() => spy(b.val));
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenLastCalledWith(0);
+    spy.mockReset();
+
+    a.val = 1;
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenLastCalledWith(1);
+  });
+
+  test("should work flow correct exec order", () => {
     const spy = jest.fn();
 
     const a = mut(0);
     const c = mut(1);
+    const b = compflow(() => (c.val > 1) ? a.val : 0);
+    run(() => spy(b.val, a.val));
 
-    // flow section
-    const b = mut(0);
-    run(() => {
-      b.val = (c.val > 1) ? a.val : 0;
-    })
-    // end flow section
-
-    // TODO: Whats happends with order of execution if will change depth but not a value?
-
-    run(() => {
-      spy(b.val, a.val);
-    });
-
-    expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenLastCalledWith(0, 0);
+    expect(spy).toHaveBeenCalledTimes(1);
+    spy.mockReset();
     c.val = 2;
 
     a.val = 1;
-    expect(spy).toHaveBeenNthCalledWith(2, 0, 1); // TODO: broken execution order
-    expect(spy).toHaveBeenNthCalledWith(3, 1, 1);
-
-    // expect(spy).toHaveBeenCalledTimes(2);
+    expect(spy).toHaveBeenLastCalledWith(1, 1);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });

@@ -13,7 +13,7 @@ let level_current;
 let transaction_nodes;
 
 const reactions_loop_limit = 1000000;
-const stop_signal = {};
+const flow_stop = Symbol();
 
 
 // node: sel or expr node
@@ -99,6 +99,7 @@ const write = (box_node, is_array) => {
 
       const stack_node_h = stack_nodes.get(node);
       stack_node_h[0] = 1;
+      const len = node.length;
 
       if (stack_node_h[2]) nodes.delete(node);
       else
@@ -106,9 +107,9 @@ const write = (box_node, is_array) => {
           stack_node_h[1] = 0;
           let expr, sel;
 
-          if (node.length === 3) expr = 1;
+          if (len === 3) expr = 1;
           else {
-            if (node[0].size) sel = 1;
+            if (node[0].size || len === 4) sel = 1; // sel or flow
             else node[3] = 0;
           }
 
@@ -117,7 +118,7 @@ const write = (box_node, is_array) => {
 
           if (expr) node[0]();
           if (sel) {
-            if (node[4]()) {
+            if (node[len - 1]()) {
               node_expand(node);
               free(node, 0);
             }
@@ -191,6 +192,7 @@ const sel = (body, is_equals = Object.is) => {
 
     context_node = sel_node;
     context_node[2] = 0; // clear level
+
     try {
       return body.call(last_context);
     } finally {
@@ -243,7 +245,7 @@ const expr = (body, sync) => {
   function run() {
     const body_run = () => body.apply((last_context = this), arguments);
 
-    const stack = context_node;
+    const stack_context_node = context_node;
     const stack_untrack = context_untrack;
     context_untrack = 0;
 
@@ -274,7 +276,7 @@ const expr = (body, sync) => {
         result = body_run();
       }
     } finally {
-      context_node = stack;
+      context_node = stack_context_node;
       context_untrack = stack_untrack;
     }
     return result;
@@ -290,7 +292,6 @@ const expr = (body, sync) => {
   ];
 };
 
-// flow((stop?, resolve?, prev_value?) => {}, empty_value?, compare_fn?);
 const flow = (fn, empty_value, is_equals = Object.is) => {
   let value = empty_value;
 
@@ -300,73 +301,62 @@ const flow = (fn, empty_value, is_equals = Object.is) => {
       write(flow_node);
     }
   }
-  const run = () => {
+  const body_run = () => fn(flow_stop, resolve, value);
+
+  const digest_run = () => {
     const stack_context_node = context_node;
     const stack_untrack = context_untrack;
     context_untrack = 0;
 
-    // let result;
-    // let h = stack_nodes.get(flow_node);
-    // let is_entry;
-    // // [<now_in_execution>, <marked_for_recalc>, <is_stopped>]
-    // if (!h) {
-    //   stack_nodes.set(flow_node, (is_entry = h = [1, 0, 0]));
-    // } else if (h[2]) h[2] = 0;
-
-    // try {
-    //   if (is_entry) {
-    //     let limit = reactions_loop_limit;
-    //     do {
-    //       flow_node[1].size && free(flow_node, 1);
-    //       h[1] = 0;
-    //       result = body_run();
-    //       if (!--limit) throw_infinity_reactions();
-    //     } while (h[1] && !h[2]);
-
-    //     stack_nodes.delete(flow_node);
-    //     h[2] && free(flow_node, 1);
-    //   } else {
-    //     result = body_run();
-    //   }
-    // } finally {
-    //   context_node = stack;
-    //   context_untrack = stack_untrack;
-    // }
-
-
-
-    const h = stack_nodes.get(flow_node);
-    if (h && h[2]) h[2] = 0;
-
     context_node = flow_node;
     context_node[2] = 0; // clear level
+
+    let result;
+    let h = stack_nodes.get(flow_node);
+    let is_entry;
+    // [<now_in_execution>, <marked_for_recalc>, <is_stopped>]
+    if (!h) {
+      stack_nodes.set(flow_node, (is_entry = h = [1, 0, 0]));
+    } else if (h[2]) h[2] = 0;
+
     try {
+      if (is_entry) {
+        let limit = reactions_loop_limit;
+        do {
+          flow_node[1].size && free(flow_node, 1);
+          h[1] = 0;
+          result = body_run();
+          if (!--limit) throw_infinity_reactions();
+        } while (h[1] && !h[2]);
 
-      const ret = fn(stop_signal, resolve, value);
-
-      // TODO: What about stop?
-      return ret;
+        stack_nodes.delete(flow_node);
+        h[2] && (free(flow_node, 1), free(flow_node, 0));
+      } else {
+        result = body_run();
+      }
     } finally {
       context_node = stack_context_node;
       context_untrack = stack_untrack;
     }
-  };
-
+    return result;
+  }
+  const run = () => {
+    let next = digest_run();
+    return next === flow_stop || is_equals(value, next)
+      ? false
+      : ((value = next), true);
+  }
 
   // rels, deps, level, fn
   const flow_node = [
     new Set(),
     new Set(),
     0,
-    () => {
-      let next = run();
-      return next === stop_signal || is_equals(value, next)
-        ? false
-        : ((value = next), true);
-    },
+    run,
   ];
 
   return [
+    run,
     () => {
       read(flow_node);
       calculate_level(flow_node);
@@ -375,7 +365,7 @@ const flow = (fn, empty_value, is_equals = Object.is) => {
     () => {
       free(expr_node, 1);
       free(sel_node, 0);
-      value = 0;
+      value = empty_value;
       stack_nodes.has(expr_node) && (stack_nodes.get(expr_node)[2] = 1);
     },
   ];
@@ -384,4 +374,4 @@ const flow = (fn, empty_value, is_equals = Object.is) => {
 
 
 
-module.exports = { box, sel, expr, transaction, untrack };
+module.exports = { box, sel, expr, flow, transaction, untrack };

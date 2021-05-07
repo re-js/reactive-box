@@ -1,4 +1,4 @@
-const { mut, selec, sel, comp, run, runer, expr } = require("./lib");
+const { mut, selec, sel, comp, run, runer } = require("./lib");
 
 describe("Sel", () => {
   test("sel run only once on each box change with one box", () => {
@@ -236,6 +236,7 @@ describe("Sel", () => {
 
     // check
     a.val = 2;
+    // TODO: Whats happends with order of execution if will change depth but not a value?
     // TODO: check failed (m:4, k:5)
     // expect(spy).toHaveBeenNthCalledWith(1, 'k', 4);
     // expect(spy).toHaveBeenNthCalledWith(2, 'm', 5);

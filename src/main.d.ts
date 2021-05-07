@@ -1,6 +1,6 @@
 declare function box<T>(
   initialValue?: T,
-  onChange?: (currentValue: T, previousValue: T) => void,
+  onChange?: (currentValue: T, prevValue: T) => void,
   comparer?: (value: T, nextValue: T) => boolean
 ): [() => T, (nextValue: T) => void];
 
@@ -15,7 +15,13 @@ declare function expr<T extends (...args: any[]) => any>(
   updater: () => void
 ): [T, () => void];
 
+declare function flow<R extends any>(
+  body: (stop: symbol, resolve: (value: R) => any, prevValue: R) => R | symbol,
+  emptyValue?: R,
+  comparer?: (value: R, nextValue: R) => boolean
+): [() => void, () => R, () => void];
+
 declare function transaction(): () => void;
 declare function untrack(): () => void;
 
-export { box, sel, expr, transaction, untrack };
+export { box, sel, expr, flow, transaction, untrack };
