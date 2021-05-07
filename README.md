@@ -8,11 +8,12 @@ Redux has so many different functions, Mobx has mutable objects by default, Angu
 
 These funny thoughts served as fuel for writing the minimal reaction core. So that everyone can make their own syntax for managing the state of the application in less than 100 lines of code :+1:
 
-It only three functions:
+It only four functions:
 
 + `box` - is the container for an immutable value.
 + `sel` - is the cached selector (or computed value) who will mark for recalculating If some of read inside boxes or selectors changed.
 + `expr` - is the expression who detects all boxes and selectors read inside and reacted If some of them changed.
++ `flow` - is the intermediate element that borns from the combination of selector and expression.
 
 ```javascript
 import { box, sel, expr } from "reactive-box";
@@ -46,7 +47,7 @@ For example that possible syntax to transcript previous javascript code:
   // run the expression
   console.log(expr())                         // message to console "Counter: 0 (next value: 1)"
 
-  a` = a` + 1   // here will be fired log to console again with new "Counter: 1 (next value: 2)" message, because a` was changed.
+  a = a` + 1   // here will be fired log to console again with new "Counter: 1 (next value: 2)" message, because a` was changed.
 ```
 
 1. We create reactive `a`
