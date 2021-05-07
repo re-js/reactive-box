@@ -300,7 +300,7 @@ const flow = (fn, empty_value, is_equals = Object.is) => {
       write(flow_node);
     }
   };
-  const body_run = () => fn(flow_stop, resolve, value);
+  const body_run = () => fn(resolve, value);
 
   const digest_run = () => {
     const stack_context_node = context_node;
@@ -364,5 +364,6 @@ const flow = (fn, empty_value, is_equals = Object.is) => {
     },
   ];
 };
+flow.stop = flow_stop;
 
 module.exports = { box, sel, expr, flow, transaction, untrack };
