@@ -21,7 +21,7 @@ describe("Flow", () => {
 
     const a = mut(0);
     const c = mut(1);
-    const b = compflow(() => (c.val > 1) ? a.val : 0);
+    const b = compflow(() => (c.val > 1 ? a.val : 0));
     run(() => spy(b.val, a.val));
 
     expect(spy).toHaveBeenLastCalledWith(0, 0);

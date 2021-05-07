@@ -216,17 +216,17 @@ describe("Sel", () => {
     const k = comp(() => k0.val);
 
     let i = 0;
-    run(() => (k.val, spy('k', i++)));
-    run(() => (m.val, spy('m', i++)));
+    run(() => (k.val, spy("k", i++)));
+    run(() => (m.val, spy("m", i++)));
 
-    expect(spy).toHaveBeenNthCalledWith(1, 'k', 0);
-    expect(spy).toHaveBeenNthCalledWith(2, 'm', 1);
+    expect(spy).toHaveBeenNthCalledWith(1, "k", 0);
+    expect(spy).toHaveBeenNthCalledWith(2, "m", 1);
     expect(spy).toBeCalledTimes(2);
     spy.mockReset();
 
     a.val = 1;
-    expect(spy).toHaveBeenNthCalledWith(1, 'm', 2);
-    expect(spy).toHaveBeenNthCalledWith(2, 'k', 3);
+    expect(spy).toHaveBeenNthCalledWith(1, "m", 2);
+    expect(spy).toHaveBeenNthCalledWith(2, "k", 3);
     expect(spy).toBeCalledTimes(2);
     spy.mockReset();
 

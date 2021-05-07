@@ -38,4 +38,4 @@ module.exports.compflow = (body, empty, comparer) => {
     get: f[1],
   });
   return obj;
-}
+};

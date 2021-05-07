@@ -15,7 +15,6 @@ let transaction_nodes;
 const reactions_loop_limit = 1000000;
 const flow_stop = Symbol();
 
-
 // node: sel or expr node
 // type: 0 - rels, 1 - deps
 const free = (node, type) => {
@@ -109,7 +108,7 @@ const write = (box_node, is_array) => {
 
           if (len === 3) expr = 1;
           else {
-            if (node[0].size || len === 4) sel = 1; // sel or flow
+            if (node[0].size || len === 4) sel = 1 /* sel or flow */;
             else node[3] = 0;
           }
 
@@ -300,7 +299,7 @@ const flow = (fn, empty_value, is_equals = Object.is) => {
       value = next_value;
       write(flow_node);
     }
-  }
+  };
   const body_run = () => fn(flow_stop, resolve, value);
 
   const digest_run = () => {
@@ -339,21 +338,16 @@ const flow = (fn, empty_value, is_equals = Object.is) => {
       context_untrack = stack_untrack;
     }
     return result;
-  }
+  };
   const run = () => {
     let next = digest_run();
     return next === flow_stop || is_equals(value, next)
       ? false
       : ((value = next), true);
-  }
+  };
 
   // rels, deps, level, fn
-  const flow_node = [
-    new Set(),
-    new Set(),
-    0,
-    run,
-  ];
+  const flow_node = [new Set(), new Set(), 0, run];
 
   return [
     run,
@@ -369,9 +363,6 @@ const flow = (fn, empty_value, is_equals = Object.is) => {
       stack_nodes.has(expr_node) && (stack_nodes.get(expr_node)[2] = 1);
     },
   ];
-}
-
-
-
+};
 
 module.exports = { box, sel, expr, flow, transaction, untrack };
