@@ -76,7 +76,7 @@ And the last one is a reaction subscriber. It provides the possibility to subscr
 
 ### Advanced
 
-+ `flow` - is the intermediate element that borns from the combination of selector and expression.
++ `flow` - is the additional element that borns from the combination of selector and expression.
 + `transaction`
 + `untrack`
 

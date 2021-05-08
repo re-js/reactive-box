@@ -1,4 +1,4 @@
-const { mut, run, compflow, flow } = require("./lib");
+const { mut, run, compflow, flowstop } = require("./lib");
 
 describe("Flow", () => {
   test("should work flow deps", () => {
@@ -19,7 +19,7 @@ describe("Flow", () => {
   test("should work flow only stop return", () => {
     const spy = jest.fn();
     const a = mut(0);
-    const b = compflow(() => a.val % 2 === 1 ? flow.stop : a.val);
+    const b = compflow(() => a.val % 2 === 1 ? flowstop : a.val);
     run(() => spy(b.val));
 
     expect(spy).toHaveBeenCalledTimes(1);

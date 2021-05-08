@@ -357,10 +357,10 @@ const flow = (fn, empty_value, is_equals = Object.is) => {
       return value;
     },
     () => {
-      free(expr_node, 1);
-      free(sel_node, 0);
+      free(flow_node, 1);
+      free(flow_node, 0);
       value = empty_value;
-      stack_nodes.has(expr_node) && (stack_nodes.get(expr_node)[2] = 1);
+      stack_nodes.has(flow_node) && (stack_nodes.get(flow_node)[2] = 1);
     },
   ];
 };

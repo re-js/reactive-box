@@ -30,6 +30,7 @@ module.exports.comp = (body, comparer) => {
 };
 
 module.exports.flow = flow;
+module.exports.flowstop = flow.stop;
 module.exports.compflow = (body, empty, comparer) => {
   const f = flow(body, empty, comparer);
   f[0]();
