@@ -95,8 +95,7 @@ startF();
 const [startLog] = expr(() => console.log(`Flow ${getF()}`)); // console: "Flow 0"
 startLog();
 
-setA(get(A) + 1); // console: "Flow 2" after 100 milliseconds
-assert(getF() === 0);
+setA(getA() + 1); // console: "Flow 2" after 100 milliseconds
 ```
 
 [Try It on RunKit!](https://runkit.com/betula/6096281e12d3ef001e5b3e77)
