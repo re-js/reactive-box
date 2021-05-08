@@ -33,6 +33,28 @@ describe("Flow", () => {
     expect(spy).toHaveBeenNthCalledWith(2, 4);
   });
 
+  test("should work flow resolve", () => {
+    const spy = jest.fn();
+    const a = mut(0);
+    const b = compflow((resolve) => {
+      for (let i = 0; i < a.val; i++) {
+        resolve(i);
+      }
+      return a.val
+    });
+    run(() => spy(b.val));
+
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy).toHaveBeenLastCalledWith(0);
+    spy.mockReset();
+
+    a.val = 3;
+    expect(spy).toHaveBeenCalledTimes(3);
+    expect(spy).toHaveBeenNthCalledWith(1, 1);
+    expect(spy).toHaveBeenNthCalledWith(2, 2);
+    expect(spy).toHaveBeenNthCalledWith(3, 3);
+  });
+
   test("should work flow correct exec order", () => {
     const spy = jest.fn();
 
