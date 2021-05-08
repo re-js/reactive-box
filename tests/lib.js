@@ -34,9 +34,11 @@ module.exports.flowstop = flow.stop;
 module.exports.compflow = (body, empty, comparer) => {
   const f = flow(body, empty, comparer);
   f[0]();
-  const obj = {};
+  const obj = { stop: f[2] };
   Object.defineProperty(obj, "val", {
     get: f[1],
   });
   return obj;
 };
+
+module.exports.delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

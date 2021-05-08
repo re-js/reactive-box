@@ -76,9 +76,30 @@ And the last one is a reaction subscriber. It provides the possibility to subscr
 
 ### Advanced
 
-+ `flow` - is the additional element that borns from the combination of selector and expression.
-+ `transaction`
-+ `untrack`
+`flow` - is the additional element that borns from the combination of selector and expression.
+
+```javascript
+import { box, flow, expr } from "reactive-box";
+
+const [getA, setA] = box(0);
+
+const [startF, getF] = flow((resolve) => {
+  const a = getA();
+  if (!a) return a;
+
+  setTimeout(() => resolve(a + 1), 100);
+  return flow.stop;
+}, 0);
+startF();
+
+const [startLog] = expr(() => console.log(`Flow ${getF()}`)); // console: "Flow 0"
+startLog();
+
+setA(get(A) + 1); // console: "Flow 2" after 100 milliseconds
+assert(getF() === 0);
+```
+
+[Try It on RunKit!](https://runkit.com/betula/6096281e12d3ef001e5b3e77)
 
 ### In the real world
 
