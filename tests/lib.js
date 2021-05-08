@@ -1,4 +1,4 @@
-const { box, expr, sel, transaction, untrack } = require("..");
+const { box, expr, sel, flow, transaction, untrack } = require("..");
 
 module.exports.transaction = transaction;
 module.exports.untrack = untrack;
@@ -28,3 +28,17 @@ module.exports.comp = (body, comparer) => {
   });
   return obj;
 };
+
+module.exports.flow = flow;
+module.exports.flowstop = flow.stop;
+module.exports.compflow = (body, empty, comparer) => {
+  const f = flow(body, empty, comparer);
+  f[0]();
+  const obj = { stop: f[2] };
+  Object.defineProperty(obj, "val", {
+    get: f[1],
+  });
+  return obj;
+};
+
+module.exports.delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

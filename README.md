@@ -46,7 +46,7 @@ For example that possible syntax to transcript previous javascript code:
   // run the expression
   console.log(expr())                         // message to console "Counter: 0 (next value: 1)"
 
-  a` = a` + 1   // here will be fired log to console again with new "Counter: 1 (next value: 2)" message, because a` was changed.
+  a = a` + 1   // here will be fired log to console again with new "Counter: 1 (next value: 2)" message, because a` was changed.
 ```
 
 1. We create reactive `a`
@@ -73,6 +73,33 @@ And the last one is a reaction subscriber. It provides the possibility to subscr
 - [glitch](https://stackoverflow.com/questions/25139257/terminology-what-is-a-glitch-in-functional-reactive-programming-rx) free - your reactions will only be called when there is a consistent state for them to run on.
 
 - Possibility for modification everywhere: in expressions and selectors!
+
+### Advanced
+
+`flow` - is the additional element that borns from the combination of selector and expression.
+
+```javascript
+import { box, flow, expr } from "reactive-box";
+
+const [getA, setA] = box(0);
+
+const [startF, getF] = flow((resolve) => {
+  const a = getA();
+  if (!a) return a;
+
+  setTimeout(() => resolve(a + 1), 100);
+  return flow.stop;
+}, 0);
+startF();
+
+const [startLog] = expr(() => console.log(`Flow ${getF()}`)); // console: "Flow 0"
+startLog();
+
+setA(get(A) + 1); // console: "Flow 2" after 100 milliseconds
+assert(getF() === 0);
+```
+
+[Try It on RunKit!](https://runkit.com/betula/6096281e12d3ef001e5b3e77)
 
 ### In the real world
 
