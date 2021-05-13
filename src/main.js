@@ -165,8 +165,8 @@ const box = (value, change_listener, is_equals = Object.is) => {
           if (!is_equals(value, next_value)) {
             const prev_value = value;
             value = next_value;
-            write(box_node);
             change_listener(value, prev_value);
+            write(box_node);
           }
         }
       : (next_value) => {
