@@ -20,10 +20,11 @@ declare function flow<R extends any>(
   emptyValue?: R,
   comparer?: (value: R, nextValue: R) => boolean
 ): [() => void, () => R, () => void];
-
-type flow_ns = typeof flow & { stop: symbol };
+declare namespace flow {
+  var stop: symbol;
+}
 
 declare function transaction(): () => void;
 declare function untrack(): () => void;
 
-export { box, sel, expr, flow_ns as flow, transaction, untrack };
+export { box, sel, expr, flow, transaction, untrack };
