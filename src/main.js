@@ -193,7 +193,7 @@ const sel = (body, is_equals = Object.is) => {
     context_node[2] = 0; // clear level
 
     try {
-      return body.call(last_context);
+      return body.call(last_context, cache);
     } finally {
       context_node = stack_context_node;
       context_untrack = stack_untrack;

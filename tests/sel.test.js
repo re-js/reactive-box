@@ -1,4 +1,4 @@
-const { mut, selec, sel, comp, run, runer } = require("./lib");
+const { mut, selec, sel, comp, run, runer, sync } = require("./lib");
 
 describe("Sel", () => {
   test("sel run only once on each box change with one box", () => {
@@ -297,5 +297,34 @@ describe("Sel", () => {
     expect(spy).toBeCalledTimes(4);
     expect(spy).toHaveBeenNthCalledWith(4, 2);
     expect(spy_2).toBeCalledTimes(1);
+  });
+
+  test('cached value as first argument of body function', () => {
+    const spy = jest.fn();
+    const spy_on = jest.fn();
+
+    const a = mut(1);
+    const stop = mut(0);
+    const s = selec((cache) => (spy(cache), a.val, stop.val ? cache : a.val));
+
+    sync(s, spy_on);
+    expect(spy).toBeCalledWith(undefined); spy.mockReset();
+    expect(spy_on).toBeCalledWith(1); spy_on.mockReset();
+
+    a.val = 2;
+    expect(spy).toBeCalledWith(1); spy.mockReset();
+    expect(spy_on).toBeCalledWith(2); spy_on.mockReset();
+
+    stop.val = 1;
+    expect(spy).toBeCalledWith(2); spy.mockReset();
+    expect(spy_on).toBeCalledTimes(0);
+
+    a.val = 3;
+    expect(spy).toBeCalledWith(2); spy.mockReset();
+    expect(spy_on).toBeCalledTimes(0);
+
+    stop.val = 0;
+    expect(spy).toBeCalledWith(2); spy.mockReset();
+    expect(spy_on).toBeCalledWith(3); spy_on.mockReset();
   });
 });

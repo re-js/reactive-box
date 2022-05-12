@@ -18,6 +18,15 @@ module.exports.expr = expr;
 module.exports.runer = (body, sync) => expr(body, sync)[0];
 module.exports.run = (body, sync) => expr(body, sync)[0]();
 
+module.exports.on = (body, fn) => {
+  const e = expr(body, () => fn(e[0]()));
+  e[0]();
+}
+module.exports.sync = (body, fn) => {
+  const e = expr(body, () => fn(e[0]()));
+  fn(e[0]());
+}
+
 module.exports.sel = sel;
 module.exports.selec = (body, comparer) => sel(body, comparer)[0];
 module.exports.comp = (body, comparer) => {
