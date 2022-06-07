@@ -1,4 +1,4 @@
-const { box, expr, sel, flow, batch, untrack } = require("..");
+const { box, expr, sel, batch, untrack } = require("..");
 
 module.exports.batch = batch;
 module.exports.untrack = untrack;
@@ -34,18 +34,6 @@ module.exports.comp = (body, comparer) => {
   const obj = {};
   Object.defineProperty(obj, "val", {
     get: s[0],
-  });
-  return obj;
-};
-
-module.exports.flow = flow;
-module.exports.flowstop = flow.stop;
-module.exports.compflow = (body, empty, comparer) => {
-  const f = flow(body, empty, comparer);
-  f[0]();
-  const obj = { stop: f[2] };
-  Object.defineProperty(obj, "val", {
-    get: f[1],
   });
   return obj;
 };
