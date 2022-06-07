@@ -10,7 +10,7 @@ let context_untrack;
 let level_nodes;
 let stack_nodes = new Map();
 let level_current;
-let transaction_nodes;
+let batch_nodes;
 
 const reactions_loop_limit = 1000000;
 const flow_stop = Symbol();
@@ -62,10 +62,10 @@ const throw_infinity_reactions = () => {
 };
 
 const write = (box_node, is_array) => {
-  if (transaction_nodes)
+  if (batch_nodes)
     return is_array
-      ? box_node.forEach(transaction_nodes.add.bind(transaction_nodes))
-      : transaction_nodes.add(box_node);
+      ? box_node.forEach(batch_nodes.add.bind(batch_nodes))
+      : batch_nodes.add(box_node);
 
   const stack_level_current = level_current;
   const stack_level_nodes = level_nodes;
@@ -138,13 +138,13 @@ const write = (box_node, is_array) => {
   }
 };
 
-const transaction = () => {
-  const stack = transaction_nodes;
-  transaction_nodes = new Set();
+const batch = () => {
+  const stack = batch_nodes;
+  batch_nodes = new Set();
 
   return () => {
-    const nodes = transaction_nodes;
-    transaction_nodes = stack;
+    const nodes = batch_nodes;
+    batch_nodes = stack;
     nodes.size && write(nodes, 1);
   };
 };
@@ -366,4 +366,4 @@ const flow = (fn, empty_value, is_equals = Object.is) => {
 };
 flow.stop = flow_stop;
 
-module.exports = { box, sel, expr, flow, transaction, untrack };
+module.exports = { box, sel, expr, flow, batch, untrack };

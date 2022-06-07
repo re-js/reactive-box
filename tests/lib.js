@@ -1,6 +1,6 @@
-const { box, expr, sel, flow, transaction, untrack } = require("..");
+const { box, expr, sel, flow, batch, untrack } = require("..");
 
-module.exports.transaction = transaction;
+module.exports.batch = batch;
 module.exports.untrack = untrack;
 
 module.exports.box = box;
