@@ -4,8 +4,8 @@ module.exports.batch = batch;
 module.exports.untrack = untrack;
 
 module.exports.box = box;
-module.exports.mut = (value, listener, comparer) => {
-  const b = box(value, listener, comparer);
+module.exports.mut = (value, comparer) => {
+  const b = box(value, comparer);
   const obj = {};
   Object.defineProperty(obj, "val", {
     get: b[0],

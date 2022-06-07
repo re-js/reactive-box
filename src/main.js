@@ -155,26 +155,17 @@ const untrack = () => {
   return () => (context_untrack = stack);
 };
 
-const box = (value, change_listener, is_equals = Object.is) => {
+const box = (value, is_equals = Object.is) => {
   // rels, _, level
   const box_node = [new Set(), 0, 0];
   return [
     () => (read(box_node), calculate_level(box_node), value),
-    change_listener
-      ? (next_value) => {
-          if (!is_equals(value, next_value)) {
-            const prev_value = value;
-            value = next_value;
-            change_listener(value, prev_value);
-            write(box_node);
-          }
-        }
-      : (next_value) => {
-          if (!is_equals(value, next_value)) {
-            value = next_value;
-            write(box_node);
-          }
-        },
+    (next_value) => {
+      if (!is_equals(value, next_value)) {
+        value = next_value;
+        write(box_node);
+      }
+    },
   ];
 };
 
