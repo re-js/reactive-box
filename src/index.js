@@ -280,4 +280,4 @@ const expr = (body, sync) => {
   ];
 };
 
-module.exports = { box, sel, expr, batch, untrack };
+export { box, sel, expr, batch, untrack };

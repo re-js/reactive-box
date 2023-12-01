@@ -1,4 +1,4 @@
-const { mut, selec, sel, comp, run, runer, sync, on } = require("./lib");
+import { mut, selec, sel, comp, run, runer, sync, on } from "./lib";
 
 describe("Sel", () => {
   test("sel run only once on each box change with one box", () => {

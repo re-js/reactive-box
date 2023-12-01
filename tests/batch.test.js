@@ -1,4 +1,4 @@
-const { mut, run, comp, batch } = require("./lib");
+import { mut, run, comp, batch } from "./lib";
 
 describe("Batch", () => {
   test("should work batch", () => {

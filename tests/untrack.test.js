@@ -1,4 +1,4 @@
-const { box, run, runer, untrack } = require("./lib");
+import { box, run, runer, untrack } from "./lib";
 
 describe("Untrack", () => {
   test("should work untrack", () => {

@@ -1,4 +1,4 @@
-const { mut, run, comp, selec, runer, expr } = require("./lib");
+import { mut, run, comp, selec, runer, expr } from "./lib";
 
 describe("Graph", () => {
   test("expr run only once for three deep sel", () => {

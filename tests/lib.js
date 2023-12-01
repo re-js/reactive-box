@@ -1,4 +1,4 @@
-const { box, expr, sel, batch, untrack } = require("..");
+import { box, expr, sel, batch, untrack } from "..";
 
 module.exports.batch = batch;
 module.exports.untrack = untrack;

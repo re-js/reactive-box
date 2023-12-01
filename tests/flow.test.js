@@ -1,4 +1,4 @@
-const { mut, run } = require("./lib");
+import { mut, run } from "./lib";
 
 describe("Flow", () => {
   test("should work flow", () => {

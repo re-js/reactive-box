@@ -1,4 +1,4 @@
-const { mut, runer, expr, run } = require("./lib");
+import { mut, runer, expr, run } from "./lib";
 
 describe("Expr", () => {
   test("(sync on each box change with one box) and (expr return value)", () => {
